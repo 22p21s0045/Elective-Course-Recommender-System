@@ -1,6 +1,8 @@
 import pandas as pd
 from typing import List
 from app.schemas import OCRSubject
+from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 def convert_grade_letter_to_number(grade_letter: str) -> float:
     mapping = {
@@ -22,3 +24,12 @@ def preprocess_target_student(student_id: str, raw_grades: List[OCRSubject]) -> 
     df_cleaned = df[df['rating'] > 0.0].copy()
     df_filtered = df_cleaned[df_cleaned['course_code'].str.startswith('INT')].copy()
     return df_filtered
+
+def get_master_data(db: Session) -> pd.DataFrame:
+    query = text("""
+    SELECT student_id, course_code, rating
+    FROM student_grades
+    """)
+
+    df = pd.read_sql_query(query, db.connection())
+    return df
