@@ -6,12 +6,13 @@ from app.internal.data_processor import preprocess_target_student, get_master_da
 from app.dependencies import get_db
 import time
 
-from app.internal.recommender import train_svd_model
+from app.internal.recommender import train_svd_model, get_top_n_recommendations
 
 router = APIRouter(
     prefix="/recommend",
     tags=["Recommendation System"],
 )
+
 
 @router.post("/")
 async def get_course_recommendations(request: schemas.RecommendationRequest, db: Session = Depends(get_db)):
@@ -27,11 +28,17 @@ async def get_course_recommendations(request: schemas.RecommendationRequest, db:
     trained_model = train_svd_model(combined_df)
     training_time = time.time() - start_time
 
+    top_3_courses = get_top_n_recommendations(
+        model=trained_model,
+        student_id=request.student_id,
+        combined_df=combined_df,
+        n=3
+    )
+
     return {
-        "message": "Completed: Trained SVD Model",
-        "target_student_records": len(target_df),
-        "master_data_records": len(master_df),
-        "total_combined_records": len(combined_df),
-        "records_trained": len(combined_df),
+        "status": "success",
+        "student_id": request.student_id,
         "training_time_seconds": round(training_time, 4),
+        "total_courses_analyzed": len(combined_df['course_code'].unique()),
+        "recommendations": top_3_courses
     }
