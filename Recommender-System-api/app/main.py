@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 
-from app.routers import testdb
+# from app.routers import testdb
 
 app = FastAPI(title="Electve Course Recommendation API")
 
-app.include_router(testdb.router)
+# app.include_router(testdb.router)
 
 @app.get("/")
 async def root():
