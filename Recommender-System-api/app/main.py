@@ -1,0 +1,16 @@
+from fastapi import FastAPI
+
+from app.routers import testdb
+
+app = FastAPI(title="Electve Course Recommendation API")
+
+app.include_router(testdb.router)
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+
+@app.get("/hello/{name}")
+async def say_hello(name: str):
+    return {"message": f"Hello {name}"}
