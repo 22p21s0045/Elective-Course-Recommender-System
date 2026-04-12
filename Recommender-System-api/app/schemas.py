@@ -10,7 +10,7 @@ class Grade(BaseModel):
         from_attributes = True
 
 
-class  OCRSubject(BaseModel):
+class OCRSubject(BaseModel):
     course_code: str = Field(..., example="INT105")
     grade_letter: str = Field(..., example="A")
 
