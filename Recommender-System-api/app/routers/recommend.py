@@ -1,14 +1,12 @@
 import pandas as pd
 import time
 
-from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app import schemas
 from app.dependencies import get_db
 from app.internal.recommender import train_svd_model, get_top_n_recommendations
 from app.internal.data_processor import preprocess_target_student, get_master_data
-from app.internal.ocr_service import extract_transcript_ocr
-from app.schemas import RecommendationRequest
 
 
 router = APIRouter(
@@ -48,9 +46,3 @@ async def get_course_recommendations(request: schemas.RecommendationRequest, db:
         "total_courses_analyzed": len(combined_df['course_code'].unique()),
         "recommendations": top_3_courses
     }
-
-
-@router.post("/extract-data", response_model=RecommendationRequest)
-async def extract_transcript_endpoint(file: UploadFile = File(...)):
-    ocr_result = await extract_transcript_ocr(file)
-    return ocr_result
