@@ -1,11 +1,11 @@
 from sentence_transformers import SentenceTransformer
-from sqlalchemy.orm import Session
+from app.database import SessionLocal
 from app.models import CourseMaster
 
 embedding_model = SentenceTransformer('intfloat/multilingual-e5-large')
 
 def generate_and_update_embedding(course_uuid: str, description: str):
-    db = Session()
+    db = SessionLocal()
     try:
         if not description:
             return
@@ -18,8 +18,12 @@ def generate_and_update_embedding(course_uuid: str, description: str):
         if course:
             course.embedding_vector = vector.tolist()
             db.commit()
+            db.refresh(course)
             print(f"Background Task: Embedded course {course.course_id} {course.course_name_en} successfully!")
 
     except Exception as e:
         db.rollback()
         print(f"Background Task Error: {str(e)}")
+
+    finally:
+        db.close()
