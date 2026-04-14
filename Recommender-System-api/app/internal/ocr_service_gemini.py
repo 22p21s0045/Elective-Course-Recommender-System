@@ -1,6 +1,3 @@
-import os
-
-from click import prompt
 from fastapi import UploadFile, HTTPException
 from google import genai
 from google.genai import types, client
