@@ -1,12 +1,13 @@
 from fastapi import FastAPI
 
-from app.routers import testdb, recommend, ocr
+from app.routers import testdb, recommend, ocr, elective_courses
 
 app = FastAPI(title="Elective Course Recommendation API")
 
 # app.include_router(testdb.router)
 app.include_router(recommend.router)
 app.include_router(ocr.router)
+app.include_router(elective_courses.router)
 
 @app.get("/")
 async def root():
