@@ -24,6 +24,7 @@ class RecommendationRequest(BaseModel):
     raw_grades: List[OCRSubject] = Field(..., min_length=1)
 
 
+# ==================== Table Course Master ====================
 class CourseBase(BaseModel):
     course_id: str
     course_name_th: str
@@ -31,6 +32,7 @@ class CourseBase(BaseModel):
     description: Optional[str] = None
     is_elective: bool = False
     topics: Optional[List[str]] = []
+    credits: Optional[int]
 
 
 class CourseCreateReq(CourseBase):
@@ -40,6 +42,8 @@ class CourseCreateReq(CourseBase):
 class CourseReadReq(BaseModel):
     id: Optional[UUID] = None
     keyword: Optional[str] = None
+    academic_year: Optional[int] = None
+    semester: Optional[int] = None
 
 
 class CourseUpdateReq(BaseModel):
@@ -48,8 +52,9 @@ class CourseUpdateReq(BaseModel):
     course_name_th: Optional[str] = None
     course_name_en: Optional[str] = None
     description: Optional[str] = None
-    is_elective: Optional[bool] = None
+    is_elective: bool = True
     topics: Optional[List[str]] = []
+    credits: Optional[int]
 
 
 class CourseDeleteReq(BaseModel):
@@ -61,6 +66,52 @@ class CourseResponse(CourseBase):
     created_at: datetime
     updated_at: datetime
     has_embedding: bool
+
+    class Config:
+        from_attributes = True
+
+
+# ==================== Table Opening Elective Courses ====================
+class OpeningCourseBase(BaseModel):
+    course_master_id: UUID
+    academic_year: int
+    semester: int
+    lecturer_name: Optional[str] = None
+    is_active: bool = True
+    capaicity: Optional[int]
+
+
+class OpeningCourseCreateReq(BaseModel):
+    course_master_id: UUID
+    academic_year: int
+    semester: int
+    lecturer_name: Optional[str] = None
+
+
+class OpeningCourseReadReq(BaseModel):
+    id: Optional[UUID] = None
+    course_master_id: Optional[UUID] = None
+    academic_year: Optional[int] = None
+    semester: Optional[int] = None
+    is_active: Optional[bool] = True
+
+
+class OpeningCourseUpdateReq(BaseModel):
+    id: UUID
+    academic_year: Optional[int] = None
+    semester: Optional[int] = None
+    lecturer_name: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class OpeningCourseDeleteReq(BaseModel):
+    id: UUID
+
+
+class OpeningCourseResponse(OpeningCourseBase):
+    id: UUID
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
