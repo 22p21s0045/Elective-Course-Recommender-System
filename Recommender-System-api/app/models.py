@@ -15,7 +15,7 @@ class StudentGrade(Base):
 class CourseMaster(Base):
     __tablename__ = "course_master"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4())
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     course_id = Column(String(20), nullable=False, index=True)
     course_name_th = Column(String(200), nullable=False)
     course_name_en = Column(String(200), nullable=False)

@@ -4,7 +4,8 @@ from app.models import CourseMaster
 
 embedding_model = SentenceTransformer('intfloat/multilingual-e5-large')
 
-def generate_and_update_embedding(course_uuid: str, description: str, db: Session):
+def generate_and_update_embedding(course_uuid: str, description: str):
+    db = Session()
     try:
         if not description:
             return
