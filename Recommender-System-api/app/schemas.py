@@ -142,3 +142,15 @@ class SearchQueryReq(BaseModel):
     semester: int
     extra_text: Optional[str] = None
     limit: int = 3
+
+class HybridRecommendReq(BaseModel):
+    student_id: str
+    raw_grades: List[OCRSubject]
+    topics: List[str]
+    extra_text: Optional[str] = None
+    academic_year: int
+    semester: int
+    # Weight
+    svd_weight: float = Field(default=0.5, ge=0.0, le=1.0)
+    embedding_weight: float = Field(default=0.5, ge=0.0, le=1.0)
+    limit: int = 3

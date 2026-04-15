@@ -31,7 +31,7 @@ def get_top_n_recommendations(model: SVD, student_id: str, combined_df: pd.DataF
         pred = model.predict(uid=student_id, iid=course)
         predictions.append({
             "course_code": course,
-            "predicted_grade": round(pred.est, 2)  # ปัดเศษทศนิยม 2 ตำแหน่งให้สวยงาม
+            "predicted_grade": round(pred.est, 2)
         })
 
     predictions.sort(key=lambda x: x["predicted_grade"], reverse=True)
