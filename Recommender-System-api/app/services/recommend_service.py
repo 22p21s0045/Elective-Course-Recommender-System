@@ -59,7 +59,6 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
 
     final_recommendations = []
     for course in unseen_open_courses:
-        # Parse description into TH and EN
         desc_th = None
         desc_en = None
         if course.description:
