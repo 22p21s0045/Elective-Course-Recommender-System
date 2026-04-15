@@ -85,7 +85,10 @@ async def create_course(
                 "semester": req.semester,
                 "lecturer_name": req.lecturer_name,
                 "capacity": req.capacity,
+                # "opening_course_id": req.opening_course_id
+
             }
+
             final_courses.append(schemas.CourseWithOpeningResponse(**response_data))
 
         db.commit()
@@ -108,23 +111,19 @@ async def create_course(
     return final_courses if is_batch else final_courses[0]
 
 
-@router.post("/", response_model=List[schemas.CourseResponse])
+@router.post("/", response_model=List[schemas.CourseWithOpeningResponse])
 async def read_course(request: schemas.CourseReadReq,
                       db: Session = Depends(get_db)):
-    query = db.query(models.CourseMaster)
+    query = db.query(models.CourseMaster, models.OpeningElectiveCourses).join(
+        models.OpeningElectiveCourses,
+        models.CourseMaster.id == models.OpeningElectiveCourses.course_master_id
+    )
+    query = query.filter(models.OpeningElectiveCourses.is_active == True)
 
-    if request.academic_year or request.semester:
-        query = query.join(
-            models.OpeningElectiveCourses,
-            models.CourseMaster.id == models.OpeningElectiveCourses.course_master_id
-        )
-
-        if request.academic_year:
-            query = query.filter(models.OpeningElectiveCourses.academic_year == request.academic_year)
-        if request.semester:
-            query = query.filter(models.OpeningElectiveCourses.semester == request.semester)
-        query = query.filter(models.OpeningElectiveCourses.is_active == True)
-
+    if request.academic_year:
+        query = query.filter(models.OpeningElectiveCourses.academic_year == request.academic_year)
+    if request.semester:
+        query = query.filter(models.OpeningElectiveCourses.semester == request.semester)
     if request.id:
         query = query.filter(models.CourseMaster.id == request.id)
     if request.keyword:
@@ -134,17 +133,29 @@ async def read_course(request: schemas.CourseReadReq,
             (models.CourseMaster.course_name_en.ilike(search)) |
             (models.CourseMaster.course_name_th.ilike(search))
         )
-    courses = query.all()
+    results = query.all()
 
-    if not courses:
+    if not results:
         raise HTTPException(
             status_code=404,
             detail="Not Found Courses with these criteria"
         )
 
-    for c in courses:
-        c.has_embedding = c.embedding_vector is not None
-    return courses
+    response_data = []
+    for course, opening in results:
+        response_dict = {
+            **course.__dict__,
+            "has_embedding": course.embedding_vector is not None,
+            "academic_year": opening.academic_year,
+            "semester": opening.semester,
+            "lecturer_name": opening.lecturer_name,
+            "capacity": opening.capacity,
+            "opening_course_id": opening.id
+        }
+        print(response_dict)
+        response_data.append(response_dict)
+
+    return response_data
 
 
 @router.patch("/update", response_model=schemas.CourseResponse)
