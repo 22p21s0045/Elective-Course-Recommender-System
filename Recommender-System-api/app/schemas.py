@@ -1,5 +1,9 @@
+from datetime import datetime
+from uuid import UUID
+
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
+
 
 class Grade(BaseModel):
     student_id: str
@@ -14,6 +18,108 @@ class OCRSubject(BaseModel):
     course_code: str = Field(..., example="INT105")
     grade_letter: str = Field(..., example="A")
 
+
 class RecommendationRequest(BaseModel):
     student_id: str = Field(..., example="12345")
     raw_grades: List[OCRSubject] = Field(..., min_length=1)
+
+
+# ==================== Table Course Master ====================
+class CourseBase(BaseModel):
+    course_id: str
+    course_name_th: str
+    course_name_en: str
+    description: Optional[str] = None
+    is_elective: bool = True
+    topics: Optional[List[str]] = []
+    credits: Optional[str] = None
+
+
+class CourseCreateReq(CourseBase):
+    pass
+
+
+class CourseReadReq(BaseModel):
+    id: Optional[UUID] = None
+    keyword: Optional[str] = None
+    academic_year: Optional[int] = None
+    semester: Optional[int] = None
+
+
+class CourseUpdateReq(BaseModel):
+    id: UUID
+    course_id: Optional[str] = None
+    course_name_th: Optional[str] = None
+    course_name_en: Optional[str] = None
+    description: Optional[str] = None
+    is_elective: bool = True
+    topics: Optional[List[str]] = []
+    credits: Optional[int]
+
+
+class CourseDeleteReq(BaseModel):
+    id: UUID
+
+
+class CourseResponse(CourseBase):
+    id: UUID
+    created_at: datetime
+    updated_at: datetime
+    has_embedding: bool
+
+    class Config:
+        from_attributes = True
+
+
+class CourseAndOpeningCreateReq(CourseBase):
+    # --- Table Opening Elective Courses ---
+    academic_year: int
+    semester: int
+    lecturer_name: Optional[str] = None
+    capacity: Optional[int]
+
+
+# ==================== Table Opening Elective Courses ====================
+class OpeningCourseBase(BaseModel):
+    course_master_id: UUID
+    academic_year: int
+    semester: int
+    lecturer_name: Optional[str] = None
+    is_active: bool = True
+    capacity: Optional[int]
+
+
+class OpeningCourseCreateReq(BaseModel):
+    course_master_id: UUID
+    academic_year: int
+    semester: int
+    lecturer_name: Optional[str] = None
+
+
+class OpeningCourseReadReq(BaseModel):
+    id: Optional[UUID] = None
+    course_master_id: Optional[UUID] = None
+    academic_year: Optional[int] = None
+    semester: Optional[int] = None
+    is_active: Optional[bool] = True
+
+
+class OpeningCourseUpdateReq(BaseModel):
+    id: UUID
+    academic_year: Optional[int] = None
+    semester: Optional[int] = None
+    lecturer_name: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class OpeningCourseDeleteReq(BaseModel):
+    id: UUID
+
+
+class OpeningCourseResponse(OpeningCourseBase):
+    id: UUID
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

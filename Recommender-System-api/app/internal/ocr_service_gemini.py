@@ -1,6 +1,3 @@
-import os
-
-from click import prompt
 from fastapi import UploadFile, HTTPException
 from google import genai
 from google.genai import types, client
@@ -33,6 +30,7 @@ async def extract_transcript_ocr(file: UploadFile) -> RecommendationRequest:
     try:
         response = client.models.generate_content(
             model='gemini-3-flash-preview',
+            # model='gemini-2.5-flash',
             contents=[
                 types.Part.from_bytes(
                     data=file_bytes,
