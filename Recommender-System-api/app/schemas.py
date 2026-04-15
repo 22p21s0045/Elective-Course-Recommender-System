@@ -6,14 +6,6 @@ from typing import List, Optional
 import uuid
 
 
-class Grade(BaseModel):
-    student_id: str
-    course_code: str
-    rating: float
-
-    class Config:
-        from_attributes = True
-
 
 class OCRSubject(BaseModel):
     course_code: str = Field(..., example="INT105")
