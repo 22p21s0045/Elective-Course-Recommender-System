@@ -47,10 +47,11 @@ class CourseUpdateReq(BaseModel):
     course_id: Optional[str] = None
     course_name_th: Optional[str] = None
     course_name_en: Optional[str] = None
-    description: Optional[str] = None
+    description_th: Optional[str] = None
+    description_en: Optional[str] = None
     is_elective: bool = True
     topics: Optional[List[str]] = []
-    credits: Optional[int]
+    credits: Optional[int] = None
 
 
 class CourseDeleteReq(BaseModel):

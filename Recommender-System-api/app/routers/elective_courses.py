@@ -201,6 +201,11 @@ async def update_course(
 
     update_data = request.model_dump(exclude_unset=True, exclude={"id"})
 
+    if request.description_th is not None or request.description_en is not None:
+        new_description = helper_merge_descriptions(request.description_th, request.description_en)
+        if new_description != course.description:
+            update_data["description"] = new_description
+
     description_changed = ("description" in update_data) and (update_data["description"] != course.description)
 
     for key, value in update_data.items():
