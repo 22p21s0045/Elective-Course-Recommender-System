@@ -5,6 +5,7 @@ from app import models, schemas
 from app.internal.recommender import train_svd_model
 from app.internal.data_processor import preprocess_target_student, get_master_data
 from app.internal.ml_service import embedding_model
+from app.services import course_service
 
 def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Session) -> dict:
     start_time = time.time()
@@ -32,11 +33,12 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
 
     unseen_course_ids = [c.course_id for c in unseen_open_courses]
 
+    ## Train by Model SVD
     master_df = get_master_data(db)
     combined_df = pd.concat([master_df, target_df], ignore_index=True)
-
     trained_model = train_svd_model(combined_df)
 
+    ## Query Augmentation
     topics_str = ", ".join(request.topics)
     user_intent = f"I want to learn about {topics_str}."
     if request.extra_text:
@@ -59,29 +61,15 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
 
     final_recommendations = []
     for course in unseen_open_courses:
-        desc_th = None
-        desc_en = None
-        if course.description:
-            text = course.description
-            if "[TH]" in text and "[EN]" in text:
-                th_part, en_part = text.split("[EN]")
-                desc_th = th_part.replace("[TH]", "").strip()
-                desc_en = en_part.strip()
-            elif "[TH]" in text:
-                desc_th = text.replace("[TH]", "").strip()
-            elif "[EN]" in text:
-                desc_en = text.replace("[EN]", "").strip()
+        desc_th, desc_en = course_service.parse_description(course.description)
 
         # --- SVD Score ---
         pred = trained_model.predict(uid=student_id, iid=course.course_id)
         est_grade = pred.est
-
         # Normalize SVD in scale 0.0 - 1.0 (formula: (value - min) / (max - min))
         svd_norm_score = (est_grade - 1.0) / 3.0
-
         # --- Embedding Score ---
         embed_norm_score = embed_scores_dict.get(course.course_id, 0.0)
-
         # --- Hybrid Score ---
         hybrid_score = (svd_norm_score * request.svd_weight) + (embed_norm_score * request.embedding_weight)
 

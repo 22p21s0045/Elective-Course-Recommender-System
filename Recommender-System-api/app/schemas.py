@@ -6,14 +6,6 @@ from typing import List, Optional
 import uuid
 
 
-class Grade(BaseModel):
-    student_id: str
-    course_code: str
-    rating: float
-
-    class Config:
-        from_attributes = True
-
 
 class OCRSubject(BaseModel):
     course_code: str = Field(..., example="INT105")
@@ -51,7 +43,7 @@ class CourseUpdateReq(BaseModel):
     description_en: Optional[str] = None
     is_elective: bool = True
     topics: Optional[List[str]] = []
-    credits: Optional[int] = None
+    credits: Optional[str] = None
 
 
 class CourseDeleteReq(BaseModel):
