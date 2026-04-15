@@ -30,9 +30,9 @@ class CourseBase(BaseModel):
     course_name_th: str
     course_name_en: str
     description: Optional[str] = None
-    is_elective: bool = False
+    is_elective: bool = True
     topics: Optional[List[str]] = []
-    credits: Optional[int]
+    credits: Optional[str] = None
 
 
 class CourseCreateReq(CourseBase):
@@ -71,6 +71,14 @@ class CourseResponse(CourseBase):
         from_attributes = True
 
 
+class CourseAndOpeningCreateReq(CourseBase):
+    # --- Table Opening Elective Courses ---
+    academic_year: int
+    semester: int
+    lecturer_name: Optional[str] = None
+    capacity: Optional[int]
+
+
 # ==================== Table Opening Elective Courses ====================
 class OpeningCourseBase(BaseModel):
     course_master_id: UUID
@@ -78,7 +86,7 @@ class OpeningCourseBase(BaseModel):
     semester: int
     lecturer_name: Optional[str] = None
     is_active: bool = True
-    capaicity: Optional[int]
+    capacity: Optional[int]
 
 
 class OpeningCourseCreateReq(BaseModel):
