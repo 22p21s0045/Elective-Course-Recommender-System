@@ -30,7 +30,6 @@ class CourseBase(BaseModel):
     course_id: str
     course_name_th: str
     course_name_en: str
-    description: Optional[str] = None
     is_elective: bool = True
     topics: Optional[List[str]] = []
     credits: Optional[str] = None
@@ -59,6 +58,8 @@ class CourseDeleteReq(BaseModel):
 
 
 class CourseAndOpeningCreateReq(CourseBase):
+    description_th: Optional[str] = None
+    description_en: Optional[str] = None
     # --- Table Opening Elective Courses ---
     academic_year: int
     semester: int
@@ -104,7 +105,8 @@ class CourseWithOpeningResponse(BaseModel):
     course_id: str
     course_name_th: str
     course_name_en: str
-    description: Optional[str] = None
+    description_th: Optional[str] = None
+    description_en: Optional[str] = None
     is_elective: bool
     topics: Optional[List[str]] = None
     credits: str
@@ -131,6 +133,7 @@ class CourseResponse(CourseBase):
 
     class Config:
         from_attributes = True
+
 
 class SearchQueryReq(BaseModel):
     topics: List[str]

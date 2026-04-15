@@ -1,7 +1,7 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
-from typing import List, Union
+from typing import List, Union, Optional
 
 from app import models, schemas
 from app.dependencies import get_db
@@ -9,6 +9,14 @@ from app.internal.ml_service import generate_and_update_embedding
 
 router = APIRouter(prefix="/elective-courses", tags=["Admin CRUD Elective Courses"])
 
+def helper_merge_descriptions(th: Optional[str], en: Optional[str]) -> Optional[str]:
+    parts = []
+    if th:
+        parts.append(f"[TH] {th}")
+    if en:
+        parts.append(f"[EN] {en}")
+
+    return " ".join(parts) if parts else None
 
 @router.post("/create",
              response_model=Union[schemas.CourseWithOpeningResponse, List[schemas.CourseWithOpeningResponse]])
@@ -31,9 +39,14 @@ async def create_course(
             if existing_course:
                 course_uuid = existing_course.id
                 update_data = req.model_dump(
-                    include={"course_name_th", "course_name_en", "description", "is_elective", "topics", "credits"},
+                    include={"course_name_th", "course_name_en", "is_elective", "topics", "credits"},
                     exclude_unset=True
                 )
+
+                if req.description_th is not None or req.description_en is not None:
+                    new_description = helper_merge_descriptions(req.description_th, req.description_en)
+                    if new_description != existing_course.description:
+                        update_data["description"] = new_description
 
                 needs_embedding = (
                         "description" in update_data and
@@ -47,10 +60,11 @@ async def create_course(
                 course = existing_course
             else:
                 course_uuid = uuid.uuid4()
+                description = helper_merge_descriptions(req.description_th, req.description_en)
                 course_data = req.model_dump(
-                    include={"course_id", "course_name_th", "course_name_en", "description", "is_elective", "topics",
-                             "credits"}
+                    include={"course_id", "course_name_th", "course_name_en", "is_elective", "topics", "credits"}
                 )
+                course_data["description"] = description
 
                 course = models.CourseMaster(id=course_uuid, **course_data)
                 db.add(course)
@@ -143,8 +157,24 @@ async def read_course(request: schemas.CourseReadReq,
 
     response_data = []
     for course, opening in results:
+        desc_th = None
+        desc_en = None
+
+        if course.description:
+            text = course.description
+            if "[TH]" in text and "[EN]" in text:
+                th_part, en_part = text.split("[EN]")
+                desc_th = th_part.replace("[TH]", "").strip()
+                desc_en = en_part.strip()
+            elif "[TH]" in text:
+                desc_th = text.replace("[TH]", "").strip()
+            elif "[EN]" in text:
+                desc_en = text.replace("[EN]", "").strip()
+
         response_dict = {
             **course.__dict__,
+            "description_th": desc_th,
+            "description_en": desc_en,
             "has_embedding": course.embedding_vector is not None,
             "academic_year": opening.academic_year,
             "semester": opening.semester,
@@ -152,7 +182,6 @@ async def read_course(request: schemas.CourseReadReq,
             "capacity": opening.capacity,
             "opening_course_id": opening.id
         }
-        print(response_dict)
         response_data.append(response_dict)
 
     return response_data
