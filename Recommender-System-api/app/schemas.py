@@ -6,14 +6,6 @@ from typing import List, Optional
 import uuid
 
 
-class Grade(BaseModel):
-    student_id: str
-    course_code: str
-    rating: float
-
-    class Config:
-        from_attributes = True
-
 
 class OCRSubject(BaseModel):
     course_code: str = Field(..., example="INT105")
@@ -30,14 +22,9 @@ class CourseBase(BaseModel):
     course_id: str
     course_name_th: str
     course_name_en: str
-    description: Optional[str] = None
     is_elective: bool = True
     topics: Optional[List[str]] = []
     credits: Optional[str] = None
-
-
-class CourseCreateReq(CourseBase):
-    pass
 
 
 class CourseReadReq(BaseModel):
@@ -52,10 +39,11 @@ class CourseUpdateReq(BaseModel):
     course_id: Optional[str] = None
     course_name_th: Optional[str] = None
     course_name_en: Optional[str] = None
-    description: Optional[str] = None
+    description_th: Optional[str] = None
+    description_en: Optional[str] = None
     is_elective: bool = True
     topics: Optional[List[str]] = []
-    credits: Optional[int]
+    credits: Optional[str] = None
 
 
 class CourseDeleteReq(BaseModel):
@@ -63,6 +51,8 @@ class CourseDeleteReq(BaseModel):
 
 
 class CourseAndOpeningCreateReq(CourseBase):
+    description_th: Optional[str] = None
+    description_en: Optional[str] = None
     # --- Table Opening Elective Courses ---
     academic_year: int
     semester: int
@@ -78,21 +68,6 @@ class OpeningCourseBase(BaseModel):
     lecturer_name: Optional[str] = None
     is_active: bool = True
     capacity: Optional[int]
-
-
-class OpeningCourseCreateReq(BaseModel):
-    course_master_id: UUID
-    academic_year: int
-    semester: int
-    lecturer_name: Optional[str] = None
-
-
-class OpeningCourseReadReq(BaseModel):
-    id: Optional[UUID] = None
-    course_master_id: Optional[UUID] = None
-    academic_year: Optional[int] = None
-    semester: Optional[int] = None
-    is_active: Optional[bool] = True
 
 
 class OpeningCourseUpdateReq(BaseModel):
@@ -117,23 +92,14 @@ class OpeningCourseResponse(OpeningCourseBase):
         from_attributes = True
 
 
-class OpeningResponse(BaseModel):
-    academic_year: str
-    semester: int
-    lecturer_name: str
-    capacity: int
-
-    class Config:
-        from_attributes = True
-
-
 class CourseWithOpeningResponse(BaseModel):
     # course_master fields
     id: uuid.UUID
     course_id: str
     course_name_th: str
     course_name_en: str
-    description: Optional[str] = None
+    description_th: Optional[str] = None
+    description_en: Optional[str] = None
     is_elective: bool
     topics: Optional[List[str]] = None
     credits: str
@@ -160,3 +126,23 @@ class CourseResponse(CourseBase):
 
     class Config:
         from_attributes = True
+
+
+class SearchQueryReq(BaseModel):
+    topics: List[str]
+    academic_year: int
+    semester: int
+    extra_text: Optional[str] = None
+    limit: int = 3
+
+class HybridRecommendReq(BaseModel):
+    student_id: str
+    raw_grades: List[OCRSubject]
+    topics: List[str]
+    extra_text: Optional[str] = None
+    academic_year: int
+    semester: int
+    # Weight
+    svd_weight: float = Field(default=0.5, ge=0.0, le=1.0)
+    embedding_weight: float = Field(default=0.5, ge=0.0, le=1.0)
+    limit: int = 3

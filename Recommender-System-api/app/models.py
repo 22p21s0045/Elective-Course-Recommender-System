@@ -5,13 +5,6 @@ from sqlalchemy.dialects.postgresql import UUID, ARRAY, TEXT
 from pgvector.sqlalchemy import Vector
 from app.database import Base
 
-class StudentGrade(Base):
-    __tablename__ = "student_grades"
-
-    student_id = Column(String, primary_key=True, index=True)
-    course_code = Column(String, primary_key=True, index=True)
-    rating = Column(Float)
-
 class CourseMaster(Base):
     __tablename__ = "course_master"
 

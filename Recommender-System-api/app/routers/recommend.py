@@ -1,12 +1,13 @@
 import pandas as pd
 import time
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.schemas import RecommendationRequest
+from app.schemas import RecommendationRequest, HybridRecommendReq
 from app.dependencies import get_db
 from app.internal.recommender import train_svd_model, get_top_n_recommendations
 from app.internal.data_processor import preprocess_target_student, get_master_data
+from app.services import recommend_service
 
 
 router = APIRouter(
@@ -15,7 +16,7 @@ router = APIRouter(
 )
 
 
-@router.post("/")
+@router.post("/",)
 async def get_course_recommendations(request: RecommendationRequest, db: Session = Depends(get_db)):
     student_id = request.student_id
     raw_grades = request.raw_grades
@@ -50,3 +51,17 @@ async def get_course_recommendations(request: RecommendationRequest, db: Session
         "recommendations": top_3_courses
 
     }
+
+@router.post("/hybrid-recommend")
+async def get_hybrid_recommendations(request: HybridRecommendReq, db: Session = Depends(get_db)):
+    try:
+        result = recommend_service.calculate_hybrid_recommendation(request, db)
+
+        if result.get("status") == "error":
+            raise HTTPException(status_code=400, detail=result.get("message"))
+
+        return result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
