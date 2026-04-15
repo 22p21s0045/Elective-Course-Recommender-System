@@ -10,7 +10,8 @@ from app.internal.ml_service import generate_and_update_embedding
 router = APIRouter(prefix="/elective-courses", tags=["Admin CRUD Elective Courses"])
 
 
-@router.post("/create")
+@router.post("/create",
+             response_model=Union[schemas.CourseWithOpeningResponse, List[schemas.CourseWithOpeningResponse]])
 async def create_course(
         request: Union[schemas.CourseAndOpeningCreateReq, List[schemas.CourseAndOpeningCreateReq]],
         background_tasks: BackgroundTasks,
@@ -65,18 +66,31 @@ async def create_course(
                 db.rollback()
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Course {req.course_id}: {req.course_name_en} was open in {req.semester}/{req.academic_year} already."
+                    detail=f"Course '{req.course_id}: {req.course_name_en}' was open in {req.semester}/{req.academic_year} already."
                 )
 
             opening_data = req.model_dump(include={"academic_year", "semester", "lecturer_name", "capacity"})
-            new_opening = models.OpeningElectiveCourses(course_master_id=course_uuid,**opening_data)
+            new_opening = models.OpeningElectiveCourses(course_master_id=course_uuid, **opening_data)
             db.add(new_opening)
             processed_courses.append((course, needs_embedding, req))
 
-        db.commit()
+        db.flush()
 
+        final_courses = []
         for course, needs_embedding, req in processed_courses:
-            db.refresh(course)
+            response_data = {
+                **course.__dict__,
+                "has_embedding": course.embedding_vector is not None,
+                "academic_year": req.academic_year,
+                "semester": req.semester,
+                "lecturer_name": req.lecturer_name,
+                "capacity": req.capacity,
+            }
+            final_courses.append(schemas.CourseWithOpeningResponse(**response_data))
+
+        db.commit()
+        for course, needs_embedding, req in processed_courses:
+            # db.refresh(course)
             if needs_embedding and course.description:
                 background_tasks.add_task(
                     generate_and_update_embedding,
@@ -85,31 +99,11 @@ async def create_course(
                 )
 
     except HTTPException:
+        db.rollback()
         raise
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-
-    final_courses = []
-    for course, needs_embedding, req in processed_courses:
-        course_response = {
-            "id": course.id,
-            "course_id": course.course_id,
-            "course_name_th": course.course_name_th,
-            "course_name_en": course.course_name_en,
-            "description": course.description,
-            "is_elective": course.is_elective,
-            "topics": course.topics,
-            "credits": course.credits,
-            "created_at": course.created_at,
-            "updated_at": course.updated_at,
-            "has_embedding": course.embedding_vector is not None,
-            "academic_year": req.academic_year,
-            "semester": req.semester,
-            "lecturer_name": req.lecturer_name,
-            "capacity": req.capacity,
-        }
-        final_courses.append(course_response)
 
     return final_courses if is_batch else final_courses[0]
 
@@ -192,4 +186,4 @@ async def delete_course(
     db.delete(course)
     db.commit()
 
-    return {"status": "success", "message": f"Remove {course.course_id}: {course.course_name_en} successfully"}
+    return {"status": "success", "message": f"Remove '{course.course_id}: {course.course_name_en}' successfully"}
