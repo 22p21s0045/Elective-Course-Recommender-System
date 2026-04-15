@@ -100,6 +100,8 @@ async def delete_opening(
     opening = db.query(models.OpeningElectiveCourses).filter(models.OpeningElectiveCourses.id == request.id).first()
     if not opening:
         raise HTTPException(status_code=404, detail="Not Found Opening Course with this ID")
+    if not opening.is_active:
+        raise HTTPException(status_code=400, detail="This course has already been deleted.")
 
     opening.is_active = False
     db.commit()
