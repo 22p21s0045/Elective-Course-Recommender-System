@@ -86,27 +86,29 @@ async def create_course(
             opening_data = req.model_dump(include={"academic_year", "semester", "lecturer_name", "capacity"})
             new_opening = models.OpeningElectiveCourses(course_master_id=course_uuid, **opening_data)
             db.add(new_opening)
-            processed_courses.append((course, needs_embedding, req))
+            processed_courses.append((course, needs_embedding, req, new_opening))
 
         db.flush()
 
         final_courses = []
-        for course, needs_embedding, req in processed_courses:
+        for course, needs_embedding, req, new_opening in processed_courses:
             response_data = {
                 **course.__dict__,
+                "description_th": req.description_th,
+                "description_en": req.description_en,
                 "has_embedding": course.embedding_vector is not None,
                 "academic_year": req.academic_year,
                 "semester": req.semester,
                 "lecturer_name": req.lecturer_name,
                 "capacity": req.capacity,
-                # "opening_course_id": req.opening_course_id
+                "opening_course_id": new_opening.id
 
             }
 
             final_courses.append(schemas.CourseWithOpeningResponse(**response_data))
 
         db.commit()
-        for course, needs_embedding, req in processed_courses:
+        for course, needs_embedding, req, _ in processed_courses:
             # db.refresh(course)
             if needs_embedding and course.description:
                 background_tasks.add_task(
