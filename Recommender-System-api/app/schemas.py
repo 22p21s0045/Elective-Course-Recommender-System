@@ -131,3 +131,10 @@ class CourseResponse(CourseBase):
 
     class Config:
         from_attributes = True
+
+class SearchQueryReq(BaseModel):
+    topics: List[str]
+    academic_year: int
+    semester: int
+    extra_text: Optional[str] = None
+    limit: int = 3
