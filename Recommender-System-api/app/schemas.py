@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 from typing import List, Optional
+import uuid
 
 
 class Grade(BaseModel):
@@ -61,16 +62,6 @@ class CourseDeleteReq(BaseModel):
     id: UUID
 
 
-class CourseResponse(CourseBase):
-    id: UUID
-    created_at: datetime
-    updated_at: datetime
-    has_embedding: bool
-
-    class Config:
-        from_attributes = True
-
-
 class CourseAndOpeningCreateReq(CourseBase):
     # --- Table Opening Elective Courses ---
     academic_year: int
@@ -116,10 +107,56 @@ class OpeningCourseDeleteReq(BaseModel):
     id: UUID
 
 
+# ============== Responses ==============
 class OpeningCourseResponse(OpeningCourseBase):
     id: UUID
     created_at: datetime
     updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class OpeningResponse(BaseModel):
+    academic_year: str
+    semester: int
+    lecturer_name: str
+    capacity: int
+
+    class Config:
+        from_attributes = True
+
+
+class CourseWithOpeningResponse(BaseModel):
+    # course_master fields
+    id: uuid.UUID
+    course_id: str
+    course_name_th: str
+    course_name_en: str
+    description: Optional[str] = None
+    is_elective: bool
+    topics: Optional[List[str]] = None
+    credits: str
+    created_at: datetime
+    updated_at: datetime
+    has_embedding: bool
+
+    # opening_elective_courses fields
+    academic_year: int
+    semester: int
+    lecturer_name: str
+    capacity: int
+    opening_course_id: Optional[uuid.UUID] = None
+
+    class Config:
+        from_attributes = True
+
+
+class CourseResponse(CourseBase):
+    id: UUID
+    created_at: datetime
+    updated_at: datetime
+    has_embedding: bool
 
     class Config:
         from_attributes = True
