@@ -36,10 +36,6 @@ class CourseBase(BaseModel):
     credits: Optional[str] = None
 
 
-class CourseCreateReq(CourseBase):
-    pass
-
-
 class CourseReadReq(BaseModel):
     id: Optional[UUID] = None
     keyword: Optional[str] = None
@@ -80,21 +76,6 @@ class OpeningCourseBase(BaseModel):
     capacity: Optional[int]
 
 
-class OpeningCourseCreateReq(BaseModel):
-    course_master_id: UUID
-    academic_year: int
-    semester: int
-    lecturer_name: Optional[str] = None
-
-
-class OpeningCourseReadReq(BaseModel):
-    id: Optional[UUID] = None
-    course_master_id: Optional[UUID] = None
-    academic_year: Optional[int] = None
-    semester: Optional[int] = None
-    is_active: Optional[bool] = True
-
-
 class OpeningCourseUpdateReq(BaseModel):
     id: UUID
     academic_year: Optional[int] = None
@@ -112,16 +93,6 @@ class OpeningCourseResponse(OpeningCourseBase):
     id: UUID
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-class OpeningResponse(BaseModel):
-    academic_year: str
-    semester: int
-    lecturer_name: str
-    capacity: int
 
     class Config:
         from_attributes = True
