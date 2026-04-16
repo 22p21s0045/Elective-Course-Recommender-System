@@ -1,7 +1,39 @@
+"use client"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import {
+  Briefcase,
+  Code,
+  Users,
+  Brain,
+  Shield,
+  Database,
+  BarChart,
+  Network,
+  Cloud,
+  Palette,
+  Server,
+} from "lucide-react"
+import { useRouter } from "next/navigation"
+import { storage } from "@/lib/storage"
+import { useEffect } from "react"
+
+const topicIcons: Record<string, any> = {
+  "Business & Management": Briefcase,
+  "Web Development": Code,
+  "Professional Practice & Soft Skills": Users,
+  "Data Science & AI": Brain,
+  "Software Engineering": Code,
+  "Cybersecurity": Shield,
+  "Databases & Data Engineering": Database,
+  "Mathematics & Statistics": BarChart,
+  "Networking": Network,
+  "DevOps & Architecture": Cloud,
+  "UX/UI Design": Palette,
+  "IT Fundamentals": Server,
+}
 
 const topics = [
   "Business & Management",
@@ -20,15 +52,32 @@ const topics = [
 
 export default function TopicSelection() {
   const [selected, setSelected] = useState<string[]>([])
+  const router = useRouter()
+
+  useEffect(() => {
+    const saved = storage.getTopics()
+    if (saved.length > 0) {
+      setSelected(saved)
+    }
+  }, [])
 
   const toggleTopic = (topic: string) => {
+    let updated: string[] = []
+
     if (selected.includes(topic)) {
-      setSelected(selected.filter((t) => t !== topic))
+      updated = selected.filter((t) => t !== topic)
     } else {
       if (selected.length < 3) {
-        setSelected([...selected, topic])
+        updated = [...selected, topic]
+      } else {
+        return
       }
     }
+
+    setSelected(updated)
+    storage.setTopics(updated)
+    console.log(updated)
+
   }
 
   return (
@@ -60,12 +109,28 @@ export default function TopicSelection() {
                   key={topic}
                   onClick={() => toggleTopic(topic)}
                   className={cn(
-                    "p-4 rounded-xl border text-sm text-left transition-all",
+                    "p-4 rounded-xl border text-sm transition-all flex flex-col items-center justify-between",
                     "border-black/10 bg-white hover:shadow-sm",
                     isSelected && "border-[#0075de] bg-[#f2f9ff]"
                   )}
                 >
-                  {topic}
+                  {/* Icon below text */}
+                  <div className="mt-2">
+                    {(() => {
+                      const Icon = topicIcons[topic]
+                      return Icon ? (
+                        <Icon
+                          size={20}
+                          className={cn(
+                            "text-black/50",
+                            isSelected && "text-[#0075de]"
+                          )}
+                        />
+                      ) : null
+                    })()}
+                  </div>
+
+                  <span className="text-center">{topic}</span>
                 </button>
               )
             })}
@@ -79,6 +144,7 @@ export default function TopicSelection() {
 
             <Button
               disabled={selected.length === 0}
+              onClick={() => router.push("/upload")}
               className="bg-[#0075de] hover:bg-[#005bab]"
             >
               Continue →
