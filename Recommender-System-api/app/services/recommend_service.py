@@ -14,6 +14,16 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
     target_df = preprocess_target_student(student_id, request.raw_grades)
     taken_courses = target_df['course_code'].unique().tolist() if not target_df.empty else []
 
+    open_elective_count = db.query(models.OpeningElectiveCourses).filter(
+        models.OpeningElectiveCourses.academic_year == request.academic_year,
+        models.OpeningElectiveCourses.semester == request.semester,
+        models.OpeningElectiveCourses.is_active == True
+    ).count()
+    if open_elective_count == 0:
+        return {"status": "error", "message": "No elective courses are open for the specified academic year and semester."}
+
+
+
     open_courses_query = (db.query(models.CourseMaster)
     .join(
         models.OpeningElectiveCourses,
@@ -24,6 +34,7 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
         models.OpeningElectiveCourses.semester == request.semester,
         models.OpeningElectiveCourses.is_active == True
     ).all())
+
 
     unseen_open_courses = [course for course in open_courses_query if course.course_id not in taken_courses]
 
