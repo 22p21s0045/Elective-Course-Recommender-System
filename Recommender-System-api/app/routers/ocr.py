@@ -1,6 +1,6 @@
 from fastapi import APIRouter, File, UploadFile, HTTPException, Request
 
-from app.services.ocr_service_gemini import extract_transcript_ocr
+from app.services.ocr_service import extract_transcript_ocr
 from app.schemas import RecommendationRequest
 
 router = APIRouter(prefix="/ocr", tags=["OCR"])
