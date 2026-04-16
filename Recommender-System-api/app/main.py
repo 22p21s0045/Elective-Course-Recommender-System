@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import testdb, recommend, ocr, elective_courses, opening_course, search
+from app.routers import recommend, ocr, elective_courses, opening_course, search
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Elective Course Recommendation API")
