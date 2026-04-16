@@ -79,6 +79,8 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
             "course_name_en": course.course_name_en,
             "description_th": desc_th,
             "description_en": desc_en,
+            "credits": course.credits,
+            "topics": course.topics,
             "predicted_grade": round(est_grade, 2),
             "similarity_percent": round(embed_norm_score * 100, 2),
             "hybrid_score_percent": round(hybrid_score * 100, 2)
