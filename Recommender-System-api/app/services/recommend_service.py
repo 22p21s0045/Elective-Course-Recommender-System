@@ -7,6 +7,7 @@ from app.internal.data_processor import preprocess_target_student, get_master_da
 from app.internal.ml_service import embedding_model
 from app.services import course_service
 
+
 def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Session) -> dict:
     start_time = time.time()
     student_id = request.student_id
@@ -20,12 +21,11 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
         models.OpeningElectiveCourses.is_active == True
     ).count()
     if open_elective_count == 0:
-        return {"status": "error", "message": "No elective courses are open for the specified academic year and semester."}
-
-
+        return {"status": "error",
+                "message": "No elective courses are open for the specified academic year and semester."}
 
     open_courses_query = (db.query(models.CourseMaster)
-    .join(
+                          .join(
         models.OpeningElectiveCourses,
         models.CourseMaster.id == models.OpeningElectiveCourses.course_master_id
     ).filter(
@@ -34,7 +34,6 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
         models.OpeningElectiveCourses.semester == request.semester,
         models.OpeningElectiveCourses.is_active == True
     ).all())
-
 
     unseen_open_courses = [course for course in open_courses_query if course.course_id not in taken_courses]
 
