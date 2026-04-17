@@ -20,7 +20,7 @@ class RecommendationRequest(BaseModel):
 # ==================== Table Course Master ====================
 class CourseBase(BaseModel):
     course_id: str
-    course_name_th: str
+    course_name_th: Optional[str] = None
     course_name_en: str
     is_elective: bool = True
     topics: Optional[List[str]] = []
@@ -96,22 +96,22 @@ class CourseWithOpeningResponse(BaseModel):
     # course_master fields
     id: uuid.UUID
     course_id: str
-    course_name_th: str
+    course_name_th: Optional[str] = None
     course_name_en: str
     description_th: Optional[str] = None
     description_en: Optional[str] = None
     is_elective: bool
     topics: Optional[List[str]] = None
-    credits: str
+    credits: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     has_embedding: bool
 
     # opening_elective_courses fields
-    academic_year: int
-    semester: int
-    lecturer_name: str
-    capacity: int
+    academic_year: Optional[int] = None
+    semester: Optional[int] = None
+    lecturer_name: Optional[str] = None
+    capacity: Optional[int] = None
     opening_course_id: Optional[uuid.UUID] = None
 
     class Config:
