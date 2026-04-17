@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+// import { api } from "@/lib/api"
 
 type Course = {
   code: string
   name: string
 }
+
 
 // const courses: Course[] = [
 //   { code: "INT101", name: "Intro to Logic" },
@@ -51,6 +53,58 @@ export default function GradesPage() {
 
   const isComplete = courses.every((c) => selectedGrades[c.code])
 
+  const handleSubmit = async () => {
+    try {
+      const studentId = localStorage.getItem("student_id")
+
+      const raw_grades = Object.entries(selectedGrades).map(
+        ([code, grade]) => ({
+          course_code: code,
+          grade_letter: grade,
+        })
+      )
+
+      const topics = JSON.parse(localStorage.getItem("topics") || "[]")
+
+      const payload = {
+        student_id: studentId,
+        raw_grades,
+        topics,
+        extra_text: "",
+        academic_year: 2568,
+        semester: 1,
+        svd_weight: 0.5,
+        embedding_weight: 0.5,
+        limit: 3,
+      }
+
+      const res = await fetch("http://127.0.0.1:8000/recommend/hybrid-recommend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch recommendations")
+      }
+
+      const result = await res.json()
+
+      console.log("Result:", result)
+
+      // ✅ save for result page
+      localStorage.setItem("result", JSON.stringify(result))
+
+      router.push("/result")
+
+    } catch (err) {
+      console.error(err)
+      alert("Failed to get recommendations")
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#f6f5f4] flex items-center justify-center px-4">
       <Card className="w-full max-w-2xl rounded-2xl border border-black/10 shadow-sm">
@@ -89,8 +143,8 @@ export default function GradesPage() {
                     handleSelect(course.code, e.target.value)
                   }
                   className={`text-sm border rounded-md px-2 py-1 bg-white ${selectedGrades[course.code]
-                      ? "border-[#0075de]"
-                      : "border-black/10"
+                    ? "border-[#0075de]"
+                    : "border-black/10"
                     }`}
                 >
                   <option value="">Select Grade</option>
@@ -112,7 +166,7 @@ export default function GradesPage() {
 
             <Button
               disabled={!isComplete}
-              onClick={() => router.push("/result")}
+              onClick={handleSubmit}
               className="bg-[#0075de] hover:bg-[#005bab]"
             >
               Find My Electives →
