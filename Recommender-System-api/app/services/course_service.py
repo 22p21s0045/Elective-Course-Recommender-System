@@ -81,19 +81,26 @@ def create_or_update_course(
     existing_opening = db.query(models.OpeningElectiveCourses).filter(
         models.OpeningElectiveCourses.course_master_id == course_uuid,
         models.OpeningElectiveCourses.academic_year == req.academic_year,
-        models.OpeningElectiveCourses.semester == req.semester
+        models.OpeningElectiveCourses.semester == req.semester,
     ).first()
 
     if existing_opening:
-        db.rollback()
-        raise HTTPException(
-            status_code=400,
-            detail=f"Course '{req.course_id}: {req.course_name_en}' was open in {req.semester}/{req.academic_year} already."
-        )
-
-    opening_data = req.model_dump(include={"academic_year", "semester", "lecturer_name", "capacity"})
-    new_opening = models.OpeningElectiveCourses(course_master_id=course_uuid, **opening_data)
-    db.add(new_opening)
+        if existing_opening.is_active:
+            db.rollback()
+            raise HTTPException(
+                status_code=400,
+                detail=f"Course '{req.course_id}: {req.course_name_en}' was open in {req.semester}/{req.academic_year} already."
+            )
+        else:
+            # Reactivate and update inactive opening
+            existing_opening.is_active = True
+            existing_opening.lecturer_name = req.lecturer_name
+            existing_opening.capacity = req.capacity
+            new_opening = existing_opening
+    else:
+        opening_data = req.model_dump(include={"academic_year", "semester", "lecturer_name", "capacity"})
+        new_opening = models.OpeningElectiveCourses(course_master_id=course_uuid, **opening_data)
+        db.add(new_opening)
 
     return course, new_opening, needs_embedding
 
