@@ -1,6 +1,10 @@
 .env
 venv/
-app/__pycache__/
-app/*.pyc
-app/*.pyo
-app/*.pyd
+
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+dist/
+build/
+*.egg-info/
