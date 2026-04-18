@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import asc
 from app import models, schemas
 from app.internal.recommender import train_svd_model
 from app.internal.data_processor import preprocess_target_student, get_master_data
@@ -63,11 +64,13 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
     ).filter(
         models.CourseMaster.course_id.in_(unseen_course_ids),
         models.CourseMaster.embedding_vector.is_not(None)
-    ).all()
+    ).order_by(asc("distance")).all()
+    print(vector_results)
 
     embed_scores_dict = {
         row.course_id: (1.0 - (row.distance / 2.0)) for row in vector_results
     }
+    print(embed_scores_dict)
 
     final_recommendations = []
     for (course, opening) in unseen_open_courses:
