@@ -77,27 +77,50 @@ export default function TopicSelection() {
 
     setSelected(updated)
     storage.setTopics(updated)
-    console.log(updated)
+    // console.log(updated)
 
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f5f4] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#f6f5f4] flex items-center justify-center px-4 font-inter">
       <Card className="w-full max-w-2xl rounded-2xl border border-black/10 shadow-sm">
         <CardContent className="p-8 space-y-6">
 
           {/* Title */}
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-semibold text-black/90">
+            <h1 className="text-3xl font-bold text-black/90">
               What topics are you interested in?
             </h1>
-            <p className="text-sm text-[#615d59]">
+            <p className="text-base text-[#615d59]">
               Choose up to <span className="text-[#0075de] font-medium">3</span> to help us tailor your learning path
             </p>
 
-            <p className="text-xs text-[#a39e98]">
+            {/* <p className="text-xs text-[#a39e98]">
               {selected.length}/3 selected
-            </p>
+            </p> */}
+            <div className="flex items-center justify-center gap-2">
+              {[1, 2, 3].map((i) => {
+                const isActive = i <= selected.length
+
+                return (
+                  <div
+                    key={i}
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
+          border
+          ${isActive
+                        ? "bg-[#0075de] border-[#0075de] text-white"
+                        : "bg-white border-black/20 text-transparent"
+                      }`}
+                  >
+                    ✓
+                  </div>
+                )
+              })}
+
+              <span className="text-sm text-[#a39e98] ml-2">
+                {selected.length}/3 selected
+              </span>
+            </div>
           </div>
 
           {/* Grid */}
@@ -112,35 +135,44 @@ export default function TopicSelection() {
                   className={cn(
                     "p-4 rounded-xl border text-sm transition-all flex flex-col items-center justify-between",
                     "border-black/10 bg-white hover:shadow-sm",
-                    isSelected && "border-[#0075de] bg-[#f2f9ff]"
+                    isSelected && "border-[#0075de] bg-[#0075de]"
                   )}
                 >
                   {/* Icon below text */}
-                  <div className="mt-2">
+                  <div className={cn("p-3 bg-[#f2f9ff] rounded-xl", isSelected && "bg-[#4896da]")}
+                  >
                     {(() => {
                       const Icon = topicIcons[topic]
                       return Icon ? (
                         <Icon
                           size={20}
                           className={cn(
-                            "text-black/50",
-                            isSelected && "text-[#0075de]"
+                            "text-[#0075de]",
+                            isSelected && "text-white"
                           )}
                         />
                       ) : null
                     })()}
                   </div>
 
-                  <span className="text-center">{topic}</span>
+                  <span className={cn("mt-2 text-center", isSelected && "text-white")}>{topic}</span>
                 </button>
               )
             })}
           </div>
 
+          <hr />
+
           {/* Footer */}
-          <div className="flex justify-between items-center pt-4">
-            <p className="text-xs text-[#a39e98]">
-              Select at least 1 topic to continue
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-[#a39e98]">
+              {selected.length === 0
+                ? "Select at least 1 topic to continue"
+                : (3 - selected.length > 0
+                  ? `${3 - selected.length} more topic${3 - selected.length > 1 ? "s" : ""} available`
+                  : ""
+                )
+              }
             </p>
 
             <Button
