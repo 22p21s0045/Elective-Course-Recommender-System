@@ -80,16 +80,16 @@ export default function UploadTranscriptPage() {
 
     return (
         <div className="min-h-screen bg-[#f6f5f4] flex items-center justify-center px-4">
-            <Card className="w-full max-w-xl rounded-2xl border border-black/10 shadow-sm">
-                <CardContent className="p-8 space-y-6">
+            <Card className="w-full max-w-150 rounded-2xl border border-black/10 shadow-sm">
+                <CardContent className="p-8 space-y-10">
 
                     {/* Title */}
                     <div className="text-center space-y-2">
-                        <h1 className="text-2xl font-semibold text-black/90">
+                        <h1 className="text-3xl font-bold text-black/90">
                             Upload your transcript
                         </h1>
-                        <p className="text-sm text-[#615d59]">
-                            Share your academic transcript so we can personalise
+                        <p className="text-base text-[#615d59]">
+                            Share your academic transcript so we can personalise <br/>
                             your learning recommendations
                         </p>
                     </div>
@@ -111,18 +111,18 @@ export default function UploadTranscriptPage() {
                                 <UploadCloud className="text-[#0075de]" size={24} />
                             </div>
 
-                            <p className="text-sm text-black/80">
+                            <p className="text-base font-semibold text-black/80">
                                 Drag & drop your PDF here
                             </p>
 
                             <p className="text-sm">
-                                or{" "}
-                                <span className="text-[#0075de] underline">
+                                <span className="text-[#a39e98]">or{" "}</span>
+                                <span className="text-[#0075de] font-semibold underline">
                                     browse to upload
                                 </span>
                             </p>
 
-                            <p className="text-xs text-[#a39e98]">
+                            <p className="text-sm text-[#a39e98]">
                                 PDF only · Max 5 MB
                             </p>
 
@@ -145,7 +145,7 @@ export default function UploadTranscriptPage() {
                         />
                     </div>
 
-                    <p className="text-xs text-center text-[#a39e98]">
+                    <p className="text-sm text-center text-[#a39e98]">
                         Supported Only King Mongkut's University of Technology Thonburi transcript
                     </p>
 
