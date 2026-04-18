@@ -98,16 +98,16 @@ export default function ResultPage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                         <div className="border rounded-xl p-4 bg-white">
                             <p className="text-xs text-[#615d59]">Records used</p>
-                            <p className="text-lg font-semibold">175</p>
+                            <p className="text-lg font-semibold">{data?.target_student_records}</p>
                         </div>
 
-                        <div className="border rounded-xl p-4 bg-white">
+                        {/* <div className="border rounded-xl p-4 bg-white">
                             <p className="text-xs text-[#615d59]">Courses analysed</p>
                             <p className="text-lg font-semibold">48</p>
-                        </div>
+                        </div> */}
 
                         <div className="border rounded-xl p-4 bg-white">
                             <p className="text-xs text-[#615d59]">Training time</p>
@@ -137,11 +137,11 @@ export default function ResultPage() {
                                         </div>
 
                                         <p className="text-sm text-[#615d59]">
-                                            {course.course_id} • {course.credits} credits
+                                            {course.course_id} • {course.credits} credits • {course.capacity} seats
                                         </p>
 
                                         <div className="flex gap-2">
-                                            {course.topics.map((tag: string) => (
+                                            {course.topics?.map((tag: string) => (
                                                 <span
                                                     key={tag}
                                                     className="text-xs bg-black/5 px-2 py-1 rounded"
@@ -150,16 +150,20 @@ export default function ResultPage() {
                                                 </span>
                                             ))}
                                         </div>
+
+                                        <p className="text-base text-[#615d59]">
+                                            {course.lecturer_name}
+                                        </p>
                                     </div>
 
                                     {/* Right */}
                                     <div className="text-right">
                                         <p
                                             className={`text-xl font-semibold ${gradeLetter === "A"
-                                                    ? "text-green-600"
-                                                    : gradeLetter === "B+" || gradeLetter === "B"
-                                                        ? "text-[#0075de]"
-                                                        : "text-orange-500"
+                                                ? "text-green-600"
+                                                : gradeLetter === "B+" || gradeLetter === "B"
+                                                    ? "text-[#0075de]"
+                                                    : "text-orange-500"
                                                 }`}
                                         >
                                             {gradeLetter}

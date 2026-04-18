@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 export default function HomePage() {
   const router = useRouter()
 
-  const name = "Natsaran" // 👉 replace later with dynamic value
+  const name = "Papangkorn"
 
   return (
     <div className="min-h-screen bg-[#f6f5f4] flex items-center justify-center px-4">

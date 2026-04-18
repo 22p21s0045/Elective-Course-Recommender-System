@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
   Briefcase,
+  Globe,
   Code,
   Users,
   Brain,
@@ -22,7 +23,7 @@ import { useEffect } from "react"
 
 const topicIcons: Record<string, any> = {
   "Business & Management": Briefcase,
-  "Web Development": Code,
+  "Web Development": Globe,
   "Professional Practice & Soft Skills": Users,
   "Data Science & AI": Brain,
   "Software Engineering": Code,
