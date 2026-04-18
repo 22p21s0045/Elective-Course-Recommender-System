@@ -6,7 +6,6 @@ from typing import List, Optional
 import uuid
 
 
-
 class OCRSubject(BaseModel):
     course_code: str = Field(..., example="INT105")
     grade_letter: str = Field(..., example="A")
@@ -82,6 +81,27 @@ class OpeningCourseDeleteReq(BaseModel):
     id: UUID
 
 
+class SearchQueryReq(BaseModel):
+    topics: List[str]
+    academic_year: int
+    semester: int
+    extra_text: Optional[str] = None
+    limit: int = 3
+
+
+class HybridRecommendReq(BaseModel):
+    student_id: str
+    raw_grades: List[OCRSubject]
+    topics: List[str]
+    extra_text: Optional[str] = None
+    academic_year: int
+    semester: int
+    # Weight
+    svd_weight: float = Field(default=0.5, ge=0.0, le=1.0)
+    embedding_weight: float = Field(default=0.5, ge=0.0, le=1.0)
+    limit: int = 3
+
+
 # ============== Responses ==============
 class OpeningCourseResponse(OpeningCourseBase):
     id: UUID
@@ -126,23 +146,3 @@ class CourseResponse(CourseBase):
 
     class Config:
         from_attributes = True
-
-
-class SearchQueryReq(BaseModel):
-    topics: List[str]
-    academic_year: int
-    semester: int
-    extra_text: Optional[str] = None
-    limit: int = 3
-
-class HybridRecommendReq(BaseModel):
-    student_id: str
-    raw_grades: List[OCRSubject]
-    topics: List[str]
-    extra_text: Optional[str] = None
-    academic_year: int
-    semester: int
-    # Weight
-    svd_weight: float = Field(default=0.5, ge=0.0, le=1.0)
-    embedding_weight: float = Field(default=0.5, ge=0.0, le=1.0)
-    limit: int = 3

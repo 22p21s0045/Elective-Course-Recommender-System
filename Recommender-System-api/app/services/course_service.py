@@ -35,8 +35,8 @@ def parse_description(description: Optional[str]) -> Tuple[Optional[str], Option
 
 
 def create_or_update_course(
-    req: schemas.CourseAndOpeningCreateReq,
-    db: Session
+        req: schemas.CourseAndOpeningCreateReq,
+        db: Session
 ) -> Tuple[models.CourseMaster, models.OpeningElectiveCourses, bool]:
     existing_course = db.query(models.CourseMaster).filter(
         models.CourseMaster.course_id == req.course_id
@@ -56,9 +56,9 @@ def create_or_update_course(
                 update_data["description"] = new_description
 
         needs_embedding = (
-            "description" in update_data and
-            update_data["description"] != existing_course.description and
-            update_data["description"]
+                "description" in update_data and
+                update_data["description"] != existing_course.description and
+                update_data["description"]
         )
 
         for key, value in update_data.items():
@@ -106,10 +106,10 @@ def create_or_update_course(
 
 
 def format_course_response(
-    course: models.CourseMaster,
-    opening: models.OpeningElectiveCourses,
-    description_th: Optional[str] = None,
-    description_en: Optional[str] = None
+        course: models.CourseMaster,
+        opening: models.OpeningElectiveCourses,
+        description_th: Optional[str] = None,
+        description_en: Optional[str] = None
 ) -> dict:
     return {
         **course.__dict__,
@@ -162,8 +162,8 @@ def read_courses(request: schemas.CourseReadReq, db: Session) -> List[dict]:
 
 
 def update_course(
-    request: schemas.CourseUpdateReq,
-    db: Session
+        request: schemas.CourseUpdateReq,
+        db: Session
 ) -> Tuple[models.CourseMaster, bool]:
     course = db.query(models.CourseMaster).filter(models.CourseMaster.id == request.id).first()
     if not course:
@@ -197,3 +197,23 @@ def delete_course(request: schemas.CourseDeleteReq, db: Session) -> dict:
 
     return {"status": "success", "message": f"Remove '{course.course_id}: {course.course_name_en}' successfully"}
 
+
+def read_topis(db: Session) -> List[dict]:
+    coursesTopics = db.query(models.CourseMaster, models.OpeningElectiveCourses).join(
+        models.OpeningElectiveCourses,
+        models.CourseMaster.id == models.OpeningElectiveCourses.course_master_id
+    ).filter(models.OpeningElectiveCourses.is_active == True).all()
+
+    if not coursesTopics:
+        raise HTTPException(status_code=404, detail="Not Found Topics")
+
+    response_data = []
+    for course, opening in coursesTopics:
+        response_dict = {
+            "id": course.id,
+            "course_id": course.course_id,
+            "topics": course.topics,
+        }
+        response_data.append(response_dict)
+
+    return response_data

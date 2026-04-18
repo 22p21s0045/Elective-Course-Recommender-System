@@ -12,6 +12,7 @@ from app.services.course_service import (
     read_courses,
     update_course,
     delete_course,
+    read_topis
 )
 
 router = APIRouter(prefix="/elective-courses", tags=["Admin CRUD Elective Courses"])
@@ -89,3 +90,8 @@ async def delete_course_endpoint(
         db: Session = Depends(get_db)
 ):
     return delete_course(request, db)
+
+
+@router.post("/topics")
+async def read_topics_endpoint(db: Session = Depends(get_db)):
+    return read_topis(db)
