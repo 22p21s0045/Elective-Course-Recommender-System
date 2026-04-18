@@ -16,19 +16,16 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
     target_df = preprocess_target_student(student_id, request.raw_grades)
     taken_courses = target_df['course_code'].unique().tolist() if not target_df.empty else []
 
-    open_elective_count = db.query(models.OpeningElectiveCourses).filter(
-        models.OpeningElectiveCourses.academic_year == request.academic_year,
-        models.OpeningElectiveCourses.semester == request.semester,
-        models.OpeningElectiveCourses.is_active == True
-    ).count()
-    if open_elective_count == 0:
-        return {"status": "error",
-                "message": "No elective courses are open for the specified academic year and semester."}
+    user_gpa = target_df['rating'].mean() if not target_df.empty else 2.50
 
-    open_courses_query = (db.query(models.CourseMaster, models.OpeningElectiveCourses)
-                          .join(
-        models.OpeningElectiveCourses,
-        models.CourseMaster.id == models.OpeningElectiveCourses.course_master_id
+    master_df = get_master_data(db)
+    combined_df = pd.concat([master_df, target_df], ignore_index=True)
+    raw_master_ids = combined_df['course_code'].unique().tolist()
+    master_course_ids = [str(code).split(" ")[0].strip().upper() for code in raw_master_ids]
+    # print(master_course_ids)
+
+    open_courses_query = (db.query(models.CourseMaster, models.OpeningElectiveCourses).join(
+        models.OpeningElectiveCourses, models.CourseMaster.id == models.OpeningElectiveCourses.course_master_id
     ).filter(
         models.CourseMaster.is_elective == True,
         models.OpeningElectiveCourses.academic_year == request.academic_year,
@@ -37,17 +34,39 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
     ).all())
 
     unseen_open_courses = [(cm, oc) for cm, oc in open_courses_query if cm.course_id not in taken_courses]
-
     if not unseen_open_courses:
         return {"status": "error",
                 "message": "No Elective Course for Recommendation in this term (might have taken all or no course is open)"}
 
-    unseen_course_ids = [c.course_id for c, _ in unseen_open_courses]
-
-    ## Train by Model SVD
-    master_df = get_master_data(db)
-    combined_df = pd.concat([master_df, target_df], ignore_index=True)
     trained_model = train_svd_model(combined_df)
+
+    predicted_grades = {}
+    for cm, oc in unseen_open_courses:
+        if cm.course_id in master_course_ids:
+            est = trained_model.predict(uid=student_id, iid=cm.course_id).est
+            predicted_grades[cm.course_id] = est
+        else:
+            anchor = db.query(
+                models.CourseMaster.course_id,
+                models.CourseMaster.embedding_vector.cosine_distance(cm.embedding_vector).label("distance")
+            ).filter(
+                models.CourseMaster.course_id.in_(master_course_ids),
+                models.CourseMaster.embedding_vector.is_not(None)
+            ).order_by(asc("distance")).first()
+            print(f"\nหาฝาแฝดให้วิชา: {cm.course_id}")
+            if anchor:
+                sim = 1.0 - (anchor.distance / 2.0)
+                print(f"เจอฝาแฝดคือ: {anchor.course_id} (คล้าย {sim:.2f})")
+                if sim >= 0.85:
+                    anchor_est = trained_model.predict(uid=student_id, iid=anchor.course_id).est
+                    predicted_grades[cm.course_id] = anchor_est * sim
+                    print(f"ใช้เกรดจาก SVD ({anchor_est:.2f} * {sim:.2f} = {predicted_grades[cm.course_id]:.2f})")
+                else:
+                    predicted_grades[cm.course_id] = user_gpa
+                    print(f"คล้ายไม่ถึงเกณฑ์ โดนปัดเป็น GPA ({user_gpa:.2f})")
+            else:
+                predicted_grades[cm.course_id] = user_gpa
+                print(f"หา Anchor ไม่เจอเลย! (อาจจะไม่มี Vector) โดนปัดเป็น GPA ({user_gpa:.2f})")
 
     ## Query Augmentation
     topics_str = ", ".join(request.topics)
@@ -57,6 +76,7 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
 
     final_query = f"query: {user_intent}"
     query_vector = embedding_model.encode([final_query], normalize_embeddings=True)[0].tolist()
+    unseen_course_ids = [c.course_id for c, _ in unseen_open_courses]
 
     vector_results = db.query(
         models.CourseMaster.course_id,
@@ -65,12 +85,12 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
         models.CourseMaster.course_id.in_(unseen_course_ids),
         models.CourseMaster.embedding_vector.is_not(None)
     ).order_by(asc("distance")).all()
-    print(vector_results)
+    # print(vector_results)
 
     embed_scores_dict = {
         row.course_id: (1.0 - (row.distance / 2.0)) for row in vector_results
     }
-    print(embed_scores_dict)
+    # print(embed_scores_dict)
 
     final_recommendations = []
     for (course, opening) in unseen_open_courses:
@@ -78,7 +98,7 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
 
         # --- SVD Score ---
         pred = trained_model.predict(uid=student_id, iid=course.course_id)
-        est_grade = pred.est
+        est_grade = predicted_grades.get(course.course_id, user_gpa)
         # Normalize SVD in scale 0.0 - 1.0 (formula: (value - min) / (max - min))
         svd_norm_score = (est_grade - 1.0) / 3.0
         # --- Embedding Score ---
