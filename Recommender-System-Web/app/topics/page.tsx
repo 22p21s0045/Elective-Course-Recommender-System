@@ -134,7 +134,8 @@ export default function TopicSelection() {
                   onClick={() => toggleTopic(topic)}
                   className={cn(
                     "p-4 rounded-xl border text-sm transition-all flex flex-col items-center justify-between",
-                    "border-black/10 bg-white hover:shadow-sm",
+                    "border-black/10 bg-white",
+                    !isSelected && "hover:shadow-sm hover:border-[#0075de] hover:bg-[#f2f9ff]",
                     isSelected && "border-[#0075de] bg-[#0075de]"
                   )}
                 >
@@ -170,7 +171,7 @@ export default function TopicSelection() {
                 ? "Select at least 1 topic to continue"
                 : (3 - selected.length > 0
                   ? `${3 - selected.length} more topic${3 - selected.length > 1 ? "s" : ""} available`
-                  : ""
+                  : "Maximum topics selected"
                 )
               }
             </p>

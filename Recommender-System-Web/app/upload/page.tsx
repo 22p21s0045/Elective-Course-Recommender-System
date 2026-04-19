@@ -89,7 +89,7 @@ export default function UploadTranscriptPage() {
                             Upload your transcript
                         </h1>
                         <p className="text-base text-[#615d59]">
-                            Share your academic transcript so we can personalise <br/>
+                            Share your academic transcript so we can personalise <br />
                             your learning recommendations
                         </p>
                     </div>
