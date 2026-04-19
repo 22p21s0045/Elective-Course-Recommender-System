@@ -198,22 +198,15 @@ def delete_course(request: schemas.CourseDeleteReq, db: Session) -> dict:
     return {"status": "success", "message": f"Remove '{course.course_id}: {course.course_name_en}' successfully"}
 
 
-def read_topis(db: Session) -> List[dict]:
-    coursesTopics = db.query(models.CourseMaster, models.OpeningElectiveCourses).join(
+def read_topics(db: Session) -> dict:
+    courses_topics = db.query(models.CourseMaster, models.OpeningElectiveCourses).join(
         models.OpeningElectiveCourses,
         models.CourseMaster.id == models.OpeningElectiveCourses.course_master_id
     ).filter(models.OpeningElectiveCourses.is_active == True).all()
 
-    if not coursesTopics:
-        raise HTTPException(status_code=404, detail="Not Found Topics")
+    all_topics = set()
+    for course, opening in courses_topics:
+        if course.topics:
+            all_topics.update(course.topics)
 
-    response_data = []
-    for course, opening in coursesTopics:
-        response_dict = {
-            "id": course.id,
-            "course_id": course.course_id,
-            "topics": course.topics,
-        }
-        response_data.append(response_dict)
-
-    return response_data
+    return {"topics": list(all_topics)}
