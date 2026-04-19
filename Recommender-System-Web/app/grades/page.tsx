@@ -20,13 +20,15 @@ type Course = {
 //   { code: "CSC215", name: "Data Structures" },
 //   { code: "MTH201", name: "Calculus I" },
 // ]
+const grades = ["A", "B+", "B", "C+", "C", "D+", "D", "F", "S"]
 
-const grades = ["A", "B+", "B", "C+", "C", "D+", "D", "F"]
 
 export default function GradesPage() {
+
   const router = useRouter()
 
   const [courses, setCourses] = useState<Course[]>([])
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [selectedGrades, setSelectedGrades] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -105,6 +107,12 @@ export default function GradesPage() {
     }
   }
 
+  useEffect(() => {
+    const handleClickOutside = () => setOpenDropdown(null)
+    window.addEventListener("click", handleClickOutside)
+    return () => window.removeEventListener("click", handleClickOutside)
+  }, [])
+
   return (
     <div className="min-h-screen bg-[#f6f5f4] flex items-center justify-center px-4">
       <Card className="w-full max-w-2xl rounded-2xl border border-black/10 shadow-sm">
@@ -112,10 +120,9 @@ export default function GradesPage() {
 
           {/* Title */}
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-semibold">Welcome</h1>
-            <p className="text-sm text-[#615d59]">
-              To tailor your elective recommendations, please provide your
-              current standing in these mandatory core disciplines.
+            <h1 className="text-3xl font-bold">Check Your grade before next step</h1>
+            <p className="text-base text-[#615d59]">
+              Please verify your grades for accuracy before proceeding to the <br /> next step.
             </p>
           </div>
 
@@ -124,7 +131,7 @@ export default function GradesPage() {
             {courses.map((course) => (
               <div
                 key={course.code}
-                className="flex items-center justify-between border border-black/10 rounded-xl px-4 py-3 bg-white"
+                className="flex items-center justify-between border border-black/10 rounded-xl px-5 py-5 bg-[#FAFAFA]"
               >
                 {/* LEFT: code + name */}
                 <div className="text-sm">
@@ -137,30 +144,71 @@ export default function GradesPage() {
                 </div>
 
                 {/* RIGHT: grade dropdown */}
-                <select
-                  value={selectedGrades[course.code] || ""}
-                  onChange={(e) =>
-                    handleSelect(course.code, e.target.value)
-                  }
-                  className={`text-sm border rounded-md px-2 py-1 bg-white ${selectedGrades[course.code]
-                    ? "border-[#0075de]"
-                    : "border-black/10"
-                    }`}
-                >
-                  <option value="">Select Grade</option>
-                  {grades.map((g) => (
-                    <option key={g} value={g}>
-                      {g}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setOpenDropdown((prev) =>
+                        prev === course.code ? null : course.code
+                      )
+                    }}
+                    className={`text-sm rounded-sm px-3 py-1.25 min-w-25 text-center border
+      ${selectedGrades[course.code]
+                        ? "bg-[#0075de] text-white border-[#0075de]"
+                        : "bg-white border-black/10 text-black/70"
+                      }
+    `}
+                  >
+                    {selectedGrades[course.code] || "Select Grade"}
+                  </button>
+
+                  {openDropdown === course.code && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-black/10 rounded-md shadow-md z-10 p-2">
+                      <div className="grid grid-cols-4 gap-2">
+
+                        {/* Grades */}
+                        {grades.map((g) => (
+                          <div
+                            key={g}
+                            onClick={() => {
+                              handleSelect(course.code, g)
+                              setOpenDropdown(null)
+                            }}
+                            className={`py-2 text-sm text-center rounded-md cursor-pointer
+          ${selectedGrades[course.code] === g
+                                ? "bg-[#0075de] text-white"
+                                : "hover:bg-[#f2f9ff]"
+                              }
+        `}
+                          >
+                            {g}
+                          </div>
+                        ))}
+
+                        {/* Select Grade (full width) */}
+                        <div
+                          onClick={() => {
+                            handleSelect(course.code, "")
+                            setOpenDropdown(null)
+                          }}
+                          className="col-span-4 py-2 text-sm text-center rounded-md cursor-pointer hover:bg-[#f2f9ff] text-[#a39e98]"
+                        >
+                          Select Grade
+                        </div>
+
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
 
+          <hr/>
+
           {/* Footer */}
-          <div className="flex justify-between items-center pt-4 border-t">
-            <p className="text-xs text-[#a39e98]">
+          <div className="flex justify-between items-center pt-4">
+            <p className="text-sm text-[#a39e98]">
               All data is processed securely.
             </p>
 
