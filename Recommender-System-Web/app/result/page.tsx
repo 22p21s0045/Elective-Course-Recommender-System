@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { ArrowLeft, ArrowRight, Clock, BookOpen } from "lucide-react"
+import { ArrowLeft, Users, Clock, BookOpen } from "lucide-react"
 
 const getGradeLetter = (gpa: number): string => {
     if (gpa >= 4) return "A"
@@ -107,12 +107,22 @@ export default function ResultPage() {
                                             {course.course_name_en}
                                         </h2>
 
-                                        <p className="text-sm text-[#615d59]">
+                                        <p className="text-sm text-[#615d59] flex items-center gap-2 flex-wrap">
                                             <span className="font-medium text-[16px]">
                                                 {course.course_id}
                                             </span>
-                                            <span className="opacity-40"> • </span>
-                                            {course.credits} credits {course.capacity} seats
+
+                                            <span className="opacity-40">•</span>
+
+                                            <span className="flex items-center gap-1">
+                                                <BookOpen size={13} />
+                                                {course.credits} credits
+                                            </span>
+
+                                            <span className="flex items-center gap-1">
+                                                <Users size={13} />
+                                                {course.capacity} seats
+                                            </span>
                                         </p>
 
                                         <div className="flex gap-2 flex-wrap">
