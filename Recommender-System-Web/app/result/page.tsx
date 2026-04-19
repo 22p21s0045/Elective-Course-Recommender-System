@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { ArrowLeft, ArrowRight, Clock, BookOpen } from "lucide-react"
 
 const getGradeLetter = (gpa: number): string => {
     if (gpa >= 4) return "A"
@@ -61,9 +61,15 @@ export default function ResultPage() {
 
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-3">
-                        <div className="border rounded-xl p-4 bg-white">
-                            <p className="text-xs text-[#615d59]">Records used</p>
-                            <p className="text-lg font-semibold">{data?.target_student_records}</p>
+                        <div className="border rounded-xl p-4 bg-white space-y-2">
+                            <p className="text-xs text-[#615d59] flex items-center gap-2">
+                                <BookOpen size={16} className="text-[#0075de]" />
+                                Records used
+                            </p>
+
+                            <p className="text-lg font-semibold">
+                                {data?.target_student_records}
+                            </p>
                         </div>
 
                         {/* <div className="border rounded-xl p-4 bg-white">
@@ -71,8 +77,11 @@ export default function ResultPage() {
                             <p className="text-lg font-semibold">48</p>
                         </div> */}
 
-                        <div className="border rounded-xl p-4 bg-white">
-                            <p className="text-xs text-[#615d59]">Training time</p>
+                        <div className="border rounded-xl p-4 bg-white space-y-2">
+                            <p className="text-xs text-[#615d59] flex items-center gap-2">
+                                <Clock size={16} className="text-[#0075de]" />
+                                Training time
+                            </p>
                             <p className="text-lg font-semibold">{data?.processing_time_seconds}s</p>
                         </div>
                     </div>
@@ -126,10 +135,10 @@ export default function ResultPage() {
                                     <div className="w-16 text-right">
                                         <p
                                             className={`text-xl font-semibold ${gradeLetter === "A"
-                                                    ? "text-green-600"
-                                                    : gradeLetter === "B+" || gradeLetter === "B"
-                                                        ? "text-[#0075de]"
-                                                        : "text-orange-500"
+                                                ? "text-green-600"
+                                                : gradeLetter === "B+" || gradeLetter === "B"
+                                                    ? "text-[#0075de]"
+                                                    : "text-orange-500"
                                                 }`}
                                         >
                                             {gradeLetter}
