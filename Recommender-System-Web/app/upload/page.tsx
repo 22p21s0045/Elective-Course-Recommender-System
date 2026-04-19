@@ -6,11 +6,13 @@ import { UploadCloud } from "lucide-react"
 import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, ArrowRight } from "lucide-react"
+import FilePreviewCard from "@/components/ui/FilePreviewCard"
 
 export default function UploadTranscriptPage() {
     const router = useRouter()
     const inputRef = useRef<HTMLInputElement | null>(null)
     const [file, setFile] = useState<File | null>(null)
+    const [readyToSubmit, setReadyToSubmit] = useState(false)
 
     const handleFile = (f: File) => {
         if (f.type !== "application/pdf") {
@@ -24,6 +26,7 @@ export default function UploadTranscriptPage() {
         }
 
         setFile(f)
+        setReadyToSubmit(false)
     }
 
     const [loading, setLoading] = useState(false)
@@ -95,61 +98,55 @@ export default function UploadTranscriptPage() {
                     </div>
 
                     {/* Upload Box */}
-                    <div
-                        onClick={() => inputRef.current?.click()}
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={(e) => {
-                            e.preventDefault()
-                            const dropped = e.dataTransfer.files[0]
-                            if (dropped) handleFile(dropped)
-                        }}
-                        className="border border-dashed border-black/20 rounded-xl p-10 text-center cursor-pointer hover:bg-black/5 transition"
-                    >
-                        <div className="flex flex-col items-center gap-3">
-
-                            <div className="p-3 bg-[#eaf4ff] rounded-lg">
-                                <UploadCloud className="text-[#0075de]" size={24} />
-                            </div>
-
-                            <p className="text-base font-semibold text-black/80">
-                                Drag & drop your PDF here
-                            </p>
-
-                            <p className="text-sm">
-                                <span className="text-[#a39e98]">or{" "}</span>
-                                <span className="text-[#0075de] font-semibold underline">
-                                    browse to upload
-                                </span>
-                            </p>
-
-                            <p className="text-sm text-[#a39e98]">
-                                PDF only · Max 5 MB
-                            </p>
-
-                            {file && (
-                                <p className="text-xs text-green-600 mt-2">
-                                    ✅ {file.name}
-                                </p>
-                            )}
-                        </div>
- 
-                        <input
-                            ref={inputRef}
-                            type="file"
-                            hidden
-                            accept="application/pdf"
-                            onChange={(e) => {
-                                const f = e.target.files?.[0]
-                                if (f) handleFile(f)
+                    {!file ? (
+                        <div
+                            onClick={() => inputRef.current?.click()}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => {
+                                e.preventDefault()
+                                const dropped = e.dataTransfer.files[0]
+                                if (dropped) handleFile(dropped)
                             }}
+                            className="border border-dashed border-black/20 rounded-xl p-10 text-center cursor-pointer hover:bg-black/5 transition"
+                        >
+                            {/* ...existing drop zone content unchanged... */}
+                            <div className="flex flex-col items-center gap-3">
+
+                                <div className="p-3 bg-[#eaf4ff] rounded-lg">
+                                    <UploadCloud className="text-[#0075de]" size={24} />
+                                </div>
+
+                                <p className="text-base font-semibold text-black/80">
+                                    Drag & drop your PDF here
+                                </p>
+
+                                <p className="text-sm">
+                                    <span className="text-[#a39e98]">or{" "}</span>
+                                    <span className="text-[#0075de] font-semibold underline">
+                                        browse to upload
+                                    </span>
+                                </p>
+
+                                <p className="text-sm text-[#a39e98]">
+                                    PDF only · Max 5 MB
+                                </p>
+                            </div>
+                            <input ref={inputRef} type="file" hidden accept="application/pdf"
+                                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f) }} />
+                        </div>
+                    ) : (
+                        <FilePreviewCard
+                            file={file}
+                            onRemove={() => { setFile(null); setReadyToSubmit(false) }}
+                            onComplete={() => setReadyToSubmit(true)}
                         />
-                    </div>
+                    )}
 
                     <p className="text-sm text-center text-[#a39e98]">
                         Supported Only King Mongkut's University of Technology Thonburi transcript
                     </p>
 
-                    <hr/>
+                    <hr />
 
                     <div className="flex justify-between items-center">
                         <Button variant="ghost"
@@ -159,11 +156,11 @@ export default function UploadTranscriptPage() {
                         </Button>
 
                         <Button
-                            disabled={!file || loading}
+                            disabled={!readyToSubmit || loading}
                             onClick={handleUpload}
                             className="bg-[#0075de] hover:bg-[#005bab]"
                         >
-                            {loading ? "Uploading..." : "Submit →"}
+                            Submit <ArrowRight size={16} />
                         </Button>
                     </div>
 
