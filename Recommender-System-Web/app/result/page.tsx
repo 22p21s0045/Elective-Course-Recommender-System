@@ -84,11 +84,11 @@ export default function ResultPage() {
                     {/* Header */}
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-2xl font-semibold">
+                            <h1 className="text-3xl font-bold pb-2">
                                 Your Recommendations
                             </h1>
-                            <p className="text-sm text-[#615d59]">
-                                Ranked by predicted grade based on your academic profile and 175 student records.
+                            <p className="text-base text-[#615d59]">
+                                Ranked by predicted grade based on your academic profile.
                             </p>
                         </div>
 
@@ -126,18 +126,20 @@ export default function ResultPage() {
                                     className="flex justify-between items-start border-t pt-4"
                                 >
                                     {/* Left */}
-                                    <div className="space-y-2">
+                                    <div className="space-y-3">
                                         <div className="flex items-center gap-3">
-                                            <span className="text-sm text-[#0075de]">
+                                            <span className="text-base text-[#0075de] font-medium">
                                                 {index + 1}.
                                             </span>
-                                            <h2 className="font-medium">
+                                            <h2 className="text-base">
                                                 {course.course_name_en}
                                             </h2>
                                         </div>
 
                                         <p className="text-sm text-[#615d59]">
-                                            {course.course_id} • {course.credits} credits • {course.capacity} seats
+                                            <span className="font-medium text-[16px]">{course.course_id}</span>
+                                            <span className="opacity-40"> • </span>
+                                            {course.credits} credits {course.capacity} seats
                                         </p>
 
                                         <div className="flex gap-2">
@@ -151,7 +153,7 @@ export default function ResultPage() {
                                             ))}
                                         </div>
 
-                                        <p className="text-base text-[#615d59]">
+                                        <p className="text-[15px] font-semibold text-[#615d59]">
                                             {course.lecturer_name}
                                         </p>
                                     </div>
@@ -177,11 +179,13 @@ export default function ResultPage() {
                         })}
                     </div>
 
+                    <hr />
+
                     {/* Footer */}
-                    <div className="flex justify-between items-center pt-4 border-t">
-                        <p className="text-xs text-[#a39e98]">
+                    <div className="flex justify-center items-center pt-4">
+                        {/* <p className="text-xs text-[#a39e98]">
                             Master data: 150 · Target subset: 25
-                        </p>
+                        </p> */}
 
                         <Button
                             variant="outline"
