@@ -5,45 +5,6 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
-// type Course = {
-//     rank: number
-//     title: string
-//     code: string
-//     credits: number
-//     tags: string[]
-//     grade: string
-//     gpa: number
-// }
-
-// const recommendations: Course[] = [
-//     {
-//         rank: 1,
-//         title: "Introduction to Machine Learning",
-//         code: "INT201",
-//         credits: 3,
-//         tags: ["AI", "Programming"],
-//         grade: "A",
-//         gpa: 3.85,
-//     },
-//     {
-//         rank: 2,
-//         title: "Advanced Database Systems",
-//         code: "INT305",
-//         credits: 3,
-//         tags: ["SQL", "NoSQL", "Performance"],
-//         grade: "B+",
-//         gpa: 3.62,
-//     },
-//     {
-//         rank: 3,
-//         title: "Cloud Computing Architecture",
-//         code: "INT410",
-//         credits: 3,
-//         tags: ["Cloud", "DevOps"],
-//         grade: "B+",
-//         gpa: 3.41,
-//     },
-// ]
 const getGradeLetter = (gpa: number): string => {
     if (gpa >= 4) return "A"
     if (gpa >= 3.5) return "B+"
@@ -123,29 +84,31 @@ export default function ResultPage() {
                             return (
                                 <div
                                     key={course.course_id}
-                                    className="flex justify-between items-start border-t pt-4"
+                                    className="flex items-start justify-between border-t pt-4"
                                 >
-                                    {/* Left */}
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-base text-[#0075de] font-medium">
-                                                {index + 1}.
-                                            </span>
-                                            <h2 className="text-base">
-                                                {course.course_name_en}
-                                            </h2>
-                                        </div>
+                                    {/* 1. Index */}
+                                    <div className="w-6 text-[#0075de] font-medium">
+                                        {index + 1}.
+                                    </div>
+
+                                    {/* 2. Course Info */}
+                                    <div className="flex-1 space-y-3 px-3">
+                                        <h2 className="text-base">
+                                            {course.course_name_en}
+                                        </h2>
 
                                         <p className="text-sm text-[#615d59]">
-                                            <span className="font-medium text-[16px]">{course.course_id}</span>
+                                            <span className="font-medium text-[16px]">
+                                                {course.course_id}
+                                            </span>
                                             <span className="opacity-40"> • </span>
                                             {course.credits} credits {course.capacity} seats
                                         </p>
 
-                                        <div className="flex gap-2">
-                                            {course.topics?.map((tag: string) => (
+                                        <div className="flex gap-2 flex-wrap">
+                                            {course.topics?.map((tag: String) => (
                                                 <span
-                                                    key={tag}
+                                                    key={`${course.course_id}-${tag}-${1}`}
                                                     className="text-xs bg-black/5 px-2 py-1 rounded"
                                                 >
                                                     {tag}
@@ -158,14 +121,14 @@ export default function ResultPage() {
                                         </p>
                                     </div>
 
-                                    {/* Right */}
-                                    <div className="text-right">
+                                    {/* 3. Grade */}
+                                    <div className="w-16 text-right">
                                         <p
                                             className={`text-xl font-semibold ${gradeLetter === "A"
-                                                ? "text-green-600"
-                                                : gradeLetter === "B+" || gradeLetter === "B"
-                                                    ? "text-[#0075de]"
-                                                    : "text-orange-500"
+                                                    ? "text-green-600"
+                                                    : gradeLetter === "B+" || gradeLetter === "B"
+                                                        ? "text-[#0075de]"
+                                                        : "text-orange-500"
                                                 }`}
                                         >
                                             {gradeLetter}
