@@ -123,7 +123,7 @@ export default function GradesPage() {
           <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold">Check Your grade before next step</h1>
             <p className="text-base text-[#615d59]">
-              Please verify your grades for accuracy before proceeding to the <br/> next step
+              Please verify your grades for accuracy before proceeding to the <br /> next step
             </p>
           </div>
 
@@ -205,7 +205,7 @@ export default function GradesPage() {
             ))}
           </div>
 
-          <hr/>
+          <hr />
 
           {/* Footer */}
           <div className="flex justify-between items-center pt-4">

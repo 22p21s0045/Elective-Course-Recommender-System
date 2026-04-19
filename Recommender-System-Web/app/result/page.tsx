@@ -50,7 +50,7 @@ export default function ResultPage() {
                                 Your Recommendations
                             </h1>
                             <p className="text-base text-[#615d59]">
-                                Ranked by predicted grade based on your academic profile.
+                                Ranked by predicted grade based on your academic profile
                             </p>
                         </div>
 
