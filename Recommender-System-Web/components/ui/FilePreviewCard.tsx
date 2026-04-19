@@ -52,7 +52,7 @@ export default function FilePreviewCard({ file, onRemove, onComplete }: FilePrev
             {/* File row */}
             <div className="flex items-center gap-3 mb-3">
                 {/* PDF Icon */}
-                <div className="relative w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="relative w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center shrink-0">
                     <svg
                         width="22" height="22" viewBox="0 0 24 24"
                         fill="none" stroke="#ef4444"
@@ -64,7 +64,7 @@ export default function FilePreviewCard({ file, onRemove, onComplete }: FilePrev
                         <line x1="16" y1="17" x2="8" y2="17" />
                         <polyline points="10 9 9 9 8 9" />
                     </svg>
-                    <span className="absolute bottom-[3px] left-1/2 -translate-x-1/2 text-[6px] font-bold text-red-500 tracking-tight">
+                    <span className="absolute bottom-0.75 left-1/2 -translate-x-1/2 text-[6px] font-bold text-red-500 tracking-tight">
                         PDF
                     </span>
                 </div>
