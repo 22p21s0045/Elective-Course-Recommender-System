@@ -1,7 +1,9 @@
 "use client"
 
 import OcrLoadingCard from "@/components/ui/OcrLoadingCard"
+import FindingElectivesLoading from "@/components/ui/FindingElectivesLoading"
 
 export default function TestPage() {
-    return <OcrLoadingCard />
+    return <FindingElectivesLoading/>
+    // return <OcrLoadingCard />
 }

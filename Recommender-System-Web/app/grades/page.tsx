@@ -2,71 +2,60 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-import { ArrowLeft, ArrowRight } from "lucide-react"
-// import { api } from "@/lib/api"
+import { ArrowRight } from "lucide-react"
+import FindingElectivesLoading from "@/components/ui/FindingElectivesLoading"
 
 type Course = {
   code: string
   name: string
 }
 
-
-// const courses: Course[] = [
-//   { code: "INT101", name: "Intro to Logic" },
-//   { code: "INT222", name: "Foundations of Ethics" },
-//   { code: "INT333", name: "Web Programming" },
-//   { code: "CSC215", name: "Data Structures" },
-//   { code: "MTH201", name: "Calculus I" },
-// ]
 const grades = ["A", "B+", "B", "C+", "C", "D+", "D", "F", "S"]
 
-
 export default function GradesPage() {
-
   const router = useRouter()
 
   const [courses, setCourses] = useState<Course[]>([])
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [selectedGrades, setSelectedGrades] = useState<Record<string, string>>({})
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const savedCourses = JSON.parse(localStorage.getItem("courses") || "[]")
-
     setCourses(savedCourses)
 
-    // ✅ pre-fill grades from upload
     const initialGrades: Record<string, string> = {}
-
     savedCourses.forEach((c: any) => {
       initialGrades[c.code] = c.grade
     })
-
     setSelectedGrades(initialGrades)
   }, [])
 
+  useEffect(() => {
+    const handleClickOutside = () => setOpenDropdown(null)
+    window.addEventListener("click", handleClickOutside)
+    return () => window.removeEventListener("click", handleClickOutside)
+  }, [])
+
   const handleSelect = (courseCode: string, grade: string) => {
-    setSelectedGrades((prev) => ({
-      ...prev,
-      [courseCode]: grade,
-    }))
+    setSelectedGrades((prev) => ({ ...prev, [courseCode]: grade }))
   }
 
   const isComplete = courses.every((c) => selectedGrades[c.code])
 
   const handleSubmit = async () => {
+    if (!isComplete) return
+
     try {
+      setLoading(true)
+
       const studentId = localStorage.getItem("student_id")
-
-      const raw_grades = Object.entries(selectedGrades).map(
-        ([code, grade]) => ({
-          course_code: code,
-          grade_letter: grade,
-        })
-      )
-
+      const raw_grades = Object.entries(selectedGrades).map(([code, grade]) => ({
+        course_code: code,
+        grade_letter: grade,
+      }))
       const topics = JSON.parse(localStorage.getItem("topics") || "[]")
 
       const payload = {
@@ -83,36 +72,24 @@ export default function GradesPage() {
 
       const res = await fetch("http://127.0.0.1:8000/recommend/hybrid-recommend", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch recommendations")
-      }
+      if (!res.ok) throw new Error("Failed to fetch recommendations")
 
       const result = await res.json()
-
-      console.log("Result:", result)
-
-      // ✅ save for result page
       localStorage.setItem("result", JSON.stringify(result))
-
       router.push("/result")
 
     } catch (err) {
       console.error(err)
       alert("Failed to get recommendations")
+      setLoading(false)
     }
   }
 
-  useEffect(() => {
-    const handleClickOutside = () => setOpenDropdown(null)
-    window.addEventListener("click", handleClickOutside)
-    return () => window.removeEventListener("click", handleClickOutside)
-  }, [])
+  if (loading) return <FindingElectivesLoading />
 
   return (
     <div className="min-h-screen bg-[#f6f5f4] flex items-center justify-center px-4">
@@ -136,12 +113,8 @@ export default function GradesPage() {
               >
                 {/* LEFT: code + name */}
                 <div className="text-sm">
-                  <span className="text-[#a39e98] mr-2">
-                    {course.code}
-                  </span>
-                  <span className="text-black/80">
-                    {course.name}
-                  </span>
+                  <span className="text-[#a39e98] mr-2">{course.code}</span>
+                  <span className="text-black/80">{course.name}</span>
                 </div>
 
                 {/* RIGHT: grade dropdown */}
@@ -149,16 +122,13 @@ export default function GradesPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      setOpenDropdown((prev) =>
-                        prev === course.code ? null : course.code
-                      )
+                      setOpenDropdown((prev) => prev === course.code ? null : course.code)
                     }}
                     className={`text-sm rounded-sm px-3 py-1.25 min-w-25 text-center border
-      ${selectedGrades[course.code]
+                      ${selectedGrades[course.code]
                         ? "bg-[#0075de] text-white border-[#0075de]"
                         : "bg-white border-black/10 text-black/70"
-                      }
-    `}
+                      }`}
                   >
                     {selectedGrades[course.code] || "Select Grade"}
                   </button>
@@ -166,37 +136,25 @@ export default function GradesPage() {
                   {openDropdown === course.code && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border border-black/10 rounded-md shadow-md z-10 p-2">
                       <div className="grid grid-cols-4 gap-2">
-
-                        {/* Grades */}
                         {grades.map((g) => (
                           <div
                             key={g}
-                            onClick={() => {
-                              handleSelect(course.code, g)
-                              setOpenDropdown(null)
-                            }}
+                            onClick={() => { handleSelect(course.code, g); setOpenDropdown(null) }}
                             className={`py-2 text-sm text-center rounded-md cursor-pointer
-          ${selectedGrades[course.code] === g
+                              ${selectedGrades[course.code] === g
                                 ? "bg-[#0075de] text-white"
                                 : "hover:bg-[#f2f9ff]"
-                              }
-        `}
+                              }`}
                           >
                             {g}
                           </div>
                         ))}
-
-                        {/* Select Grade (full width) */}
                         <div
-                          onClick={() => {
-                            handleSelect(course.code, "")
-                            setOpenDropdown(null)
-                          }}
+                          onClick={() => { handleSelect(course.code, ""); setOpenDropdown(null) }}
                           className="col-span-4 py-2 text-sm text-center rounded-md cursor-pointer hover:bg-[#f2f9ff] text-[#a39e98]"
                         >
                           Select Grade
                         </div>
-
                       </div>
                     </div>
                   )}
@@ -209,10 +167,7 @@ export default function GradesPage() {
 
           {/* Footer */}
           <div className="flex justify-between items-center pt-4">
-            <p className="text-sm text-[#a39e98]">
-              All data is processed securely.
-            </p>
-
+            <p className="text-sm text-[#a39e98]">All data is processed securely.</p>
             <Button
               disabled={!isComplete}
               onClick={handleSubmit}
