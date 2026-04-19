@@ -16,6 +16,7 @@ import {
   Cloud,
   Palette,
   Server,
+  ArrowRight
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { storage } from "@/lib/storage"
@@ -181,7 +182,7 @@ export default function TopicSelection() {
               onClick={() => router.push("/upload")}
               className="bg-[#0075de] hover:bg-[#005bab]"
             >
-              Continue →
+              Continue <ArrowRight size={16} />
             </Button>
           </div>
 

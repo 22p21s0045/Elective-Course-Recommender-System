@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 // import { api } from "@/lib/api"
 
 type Course = {
@@ -217,7 +218,7 @@ export default function GradesPage() {
               onClick={handleSubmit}
               className="bg-[#0075de] hover:bg-[#005bab]"
             >
-              Find My Electives →
+              Find My Electives <ArrowRight size={16} />
             </Button>
           </div>
 

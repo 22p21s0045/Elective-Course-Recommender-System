@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { UploadCloud } from "lucide-react"
 import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-
+import { ArrowLeft, ArrowRight } from "lucide-react"
 
 export default function UploadTranscriptPage() {
     const router = useRouter()
@@ -132,7 +132,7 @@ export default function UploadTranscriptPage() {
                                 </p>
                             )}
                         </div>
-
+ 
                         <input
                             ref={inputRef}
                             type="file"
@@ -149,11 +149,13 @@ export default function UploadTranscriptPage() {
                         Supported Only King Mongkut's University of Technology Thonburi transcript
                     </p>
 
-                    <div className="flex justify-between items-center pt-4 border-t">
+                    <hr/>
+
+                    <div className="flex justify-between items-center">
                         <Button variant="ghost"
                             onClick={() => router.push("/topics")}
                         >
-                            ← Back
+                            <ArrowLeft size={16} /> Back
                         </Button>
 
                         <Button

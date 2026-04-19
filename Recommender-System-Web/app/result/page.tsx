@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 
 const getGradeLetter = (gpa: number): string => {
     if (gpa >= 4) return "A"
@@ -154,7 +155,7 @@ export default function ResultPage() {
                             variant="outline"
                             onClick={() => router.push("/")}
                         >
-                            ← Start over
+                            <ArrowLeft size={16} /> Start over
                         </Button>
                     </div>
 
