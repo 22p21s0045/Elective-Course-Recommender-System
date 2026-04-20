@@ -6,7 +6,6 @@ from typing import List, Optional
 import uuid
 
 
-
 class OCRSubject(BaseModel):
     course_code: str = Field(..., example="INT105")
     grade_letter: str = Field(..., example="A")
@@ -20,7 +19,7 @@ class RecommendationRequest(BaseModel):
 # ==================== Table Course Master ====================
 class CourseBase(BaseModel):
     course_id: str
-    course_name_th: str
+    course_name_th: Optional[str] = None
     course_name_en: str
     is_elective: bool = True
     topics: Optional[List[str]] = []
@@ -82,6 +81,27 @@ class OpeningCourseDeleteReq(BaseModel):
     id: UUID
 
 
+class SearchQueryReq(BaseModel):
+    topics: List[str]
+    academic_year: int
+    semester: int
+    extra_text: Optional[str] = None
+    limit: int = 3
+
+
+class HybridRecommendReq(BaseModel):
+    student_id: str
+    raw_grades: List[OCRSubject]
+    topics: List[str]
+    extra_text: Optional[str] = None
+    academic_year: int
+    semester: int
+    # Weight
+    svd_weight: float = Field(default=0.5, ge=0.0, le=1.0)
+    embedding_weight: float = Field(default=0.5, ge=0.0, le=1.0)
+    limit: int = 3
+
+
 # ============== Responses ==============
 class OpeningCourseResponse(OpeningCourseBase):
     id: UUID
@@ -96,22 +116,22 @@ class CourseWithOpeningResponse(BaseModel):
     # course_master fields
     id: uuid.UUID
     course_id: str
-    course_name_th: str
+    course_name_th: Optional[str] = None
     course_name_en: str
     description_th: Optional[str] = None
     description_en: Optional[str] = None
     is_elective: bool
     topics: Optional[List[str]] = None
-    credits: str
+    credits: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     has_embedding: bool
 
     # opening_elective_courses fields
-    academic_year: int
-    semester: int
-    lecturer_name: str
-    capacity: int
+    academic_year: Optional[int] = None
+    semester: Optional[int] = None
+    lecturer_name: Optional[str] = None
+    capacity: Optional[int] = None
     opening_course_id: Optional[uuid.UUID] = None
 
     class Config:
@@ -126,23 +146,3 @@ class CourseResponse(CourseBase):
 
     class Config:
         from_attributes = True
-
-
-class SearchQueryReq(BaseModel):
-    topics: List[str]
-    academic_year: int
-    semester: int
-    extra_text: Optional[str] = None
-    limit: int = 3
-
-class HybridRecommendReq(BaseModel):
-    student_id: str
-    raw_grades: List[OCRSubject]
-    topics: List[str]
-    extra_text: Optional[str] = None
-    academic_year: int
-    semester: int
-    # Weight
-    svd_weight: float = Field(default=0.5, ge=0.0, le=1.0)
-    embedding_weight: float = Field(default=0.5, ge=0.0, le=1.0)
-    limit: int = 3

@@ -1,8 +1,21 @@
 from fastapi import FastAPI
 
 from app.routers import recommend, ocr, elective_courses, opening_course, search
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Elective Course Recommendation API")
+origins = [
+    "http://localhost:3000",  # Next.js dev
+    "http://127.0.0.1:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(recommend.router)
 app.include_router(ocr.router)

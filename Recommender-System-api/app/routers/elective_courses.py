@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, status
 from sqlalchemy.orm import Session
 from typing import List, Union
 
@@ -12,12 +12,13 @@ from app.services.course_service import (
     read_courses,
     update_course,
     delete_course,
+    read_topics
 )
 
 router = APIRouter(prefix="/elective-courses", tags=["Admin CRUD Elective Courses"])
 
 
-@router.post("/create",
+@router.post("/create", status_code=status.HTTP_201_CREATED,
              response_model=Union[schemas.CourseWithOpeningResponse, List[schemas.CourseWithOpeningResponse]])
 async def create_course(
         request: Union[schemas.CourseAndOpeningCreateReq, List[schemas.CourseAndOpeningCreateReq]],
@@ -89,3 +90,8 @@ async def delete_course_endpoint(
         db: Session = Depends(get_db)
 ):
     return delete_course(request, db)
+
+
+@router.post("/topics")
+async def read_topics_endpoint(db: Session = Depends(get_db)):
+    return read_topics(db)

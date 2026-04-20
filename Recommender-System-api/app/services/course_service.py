@@ -35,8 +35,8 @@ def parse_description(description: Optional[str]) -> Tuple[Optional[str], Option
 
 
 def create_or_update_course(
-    req: schemas.CourseAndOpeningCreateReq,
-    db: Session
+        req: schemas.CourseAndOpeningCreateReq,
+        db: Session
 ) -> Tuple[models.CourseMaster, models.OpeningElectiveCourses, bool]:
     existing_course = db.query(models.CourseMaster).filter(
         models.CourseMaster.course_id == req.course_id
@@ -56,9 +56,9 @@ def create_or_update_course(
                 update_data["description"] = new_description
 
         needs_embedding = (
-            "description" in update_data and
-            update_data["description"] != existing_course.description and
-            update_data["description"]
+                "description" in update_data and
+                update_data["description"] != existing_course.description and
+                update_data["description"]
         )
 
         for key, value in update_data.items():
@@ -81,28 +81,35 @@ def create_or_update_course(
     existing_opening = db.query(models.OpeningElectiveCourses).filter(
         models.OpeningElectiveCourses.course_master_id == course_uuid,
         models.OpeningElectiveCourses.academic_year == req.academic_year,
-        models.OpeningElectiveCourses.semester == req.semester
+        models.OpeningElectiveCourses.semester == req.semester,
     ).first()
 
     if existing_opening:
-        db.rollback()
-        raise HTTPException(
-            status_code=400,
-            detail=f"Course '{req.course_id}: {req.course_name_en}' was open in {req.semester}/{req.academic_year} already."
-        )
-
-    opening_data = req.model_dump(include={"academic_year", "semester", "lecturer_name", "capacity"})
-    new_opening = models.OpeningElectiveCourses(course_master_id=course_uuid, **opening_data)
-    db.add(new_opening)
+        if existing_opening.is_active:
+            db.rollback()
+            raise HTTPException(
+                status_code=400,
+                detail=f"Course '{req.course_id}: {req.course_name_en}' was open in {req.semester}/{req.academic_year} already."
+            )
+        else:
+            # Reactivate and update inactive opening
+            existing_opening.is_active = True
+            existing_opening.lecturer_name = req.lecturer_name
+            existing_opening.capacity = req.capacity
+            new_opening = existing_opening
+    else:
+        opening_data = req.model_dump(include={"academic_year", "semester", "lecturer_name", "capacity"})
+        new_opening = models.OpeningElectiveCourses(course_master_id=course_uuid, **opening_data)
+        db.add(new_opening)
 
     return course, new_opening, needs_embedding
 
 
 def format_course_response(
-    course: models.CourseMaster,
-    opening: models.OpeningElectiveCourses,
-    description_th: Optional[str] = None,
-    description_en: Optional[str] = None
+        course: models.CourseMaster,
+        opening: models.OpeningElectiveCourses,
+        description_th: Optional[str] = None,
+        description_en: Optional[str] = None
 ) -> dict:
     return {
         **course.__dict__,
@@ -155,8 +162,8 @@ def read_courses(request: schemas.CourseReadReq, db: Session) -> List[dict]:
 
 
 def update_course(
-    request: schemas.CourseUpdateReq,
-    db: Session
+        request: schemas.CourseUpdateReq,
+        db: Session
 ) -> Tuple[models.CourseMaster, bool]:
     course = db.query(models.CourseMaster).filter(models.CourseMaster.id == request.id).first()
     if not course:
@@ -190,3 +197,16 @@ def delete_course(request: schemas.CourseDeleteReq, db: Session) -> dict:
 
     return {"status": "success", "message": f"Remove '{course.course_id}: {course.course_name_en}' successfully"}
 
+
+def read_topics(db: Session) -> dict:
+    courses_topics = db.query(models.CourseMaster, models.OpeningElectiveCourses).join(
+        models.OpeningElectiveCourses,
+        models.CourseMaster.id == models.OpeningElectiveCourses.course_master_id
+    ).filter(models.OpeningElectiveCourses.is_active == True).all()
+
+    all_topics = set()
+    for course, opening in courses_topics:
+        if course.topics:
+            all_topics.update(course.topics)
+
+    return {"topics": list(all_topics)}
