@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Search, Filter, Calendar, Users, BookOpen, Plus, ArrowLeft } from "lucide-react"
+import { Search, Filter, Calendar, Users, BookOpen, Plus, ArrowLeft, GraduationCap } from "lucide-react"
 
 type Course = {
     id: string
@@ -196,7 +196,7 @@ export default function AdminPage() {
                                             {semLabel}
                                         </span>
                                         <div className="flex items-center gap-1.5 text-xs text-[#a39e98]">
-                                            <Users size={12} />
+                                            <GraduationCap size={13} />
                                             <span className="truncate">{course.lecturer_name}</span>
                                         </div>
                                     </div>
