@@ -87,8 +87,8 @@ export default function AdminPage() {
                 {/* Header */}
                 <div className="flex items-start justify-between mb-8">
                     <div>
-                        <h1 className="text-2xl font-bold text-black/90">Elective Courses</h1>
-                        <p className="text-sm text-[#a39e98] mt-1">Manage elective courses available for student recommendations.</p>
+                        <h1 className="text-3xl font-bold text-black/90">Elective Courses</h1>
+                        <p className="text-base text-[#a39e98] mt-1">Manage elective courses available for student recommendations.</p>
                     </div>
                     <button className="flex items-center gap-2 bg-[#0075de] hover:bg-[#005bab] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors">
                         <Plus size={15} />
@@ -132,7 +132,7 @@ export default function AdminPage() {
                     </div>
 
                     {/* Column headers */}
-                    <div className="grid grid-cols-[1fr_180px_160px] px-5 py-2.5 border-b border-black/6">
+                    <div className="grid grid-cols-[1fr_180px_160px] px-5 py-2.5 border-b border-black/6 bg-[#fafafa]">
                         <span className="text-[11px] font-semibold text-[#a39e98] uppercase tracking-wider">Course</span>
                         <span className="text-[11px] font-semibold text-[#a39e98] uppercase tracking-wider">Offering</span>
                         <span className="text-[11px] font-semibold text-[#a39e98] uppercase tracking-wider">Credits &amp; Capacity</span>
@@ -171,7 +171,7 @@ export default function AdminPage() {
                                     {/* Course info */}
                                     <div className="pr-4">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <span className="text-[10px] font-bold bg-[#f0f0f0] text-[#615d59] px-1.5 py-0.5 rounded font-mono tracking-wide">
+                                            <span className="text-xs font-semibold bg-[#f0f0f0] text-[#615d59] px-1.5 py-0.5 rounded font-mono tracking-wide">
                                                 {course.course_id}
                                             </span>
                                             <span className="text-sm font-semibold text-black/85 truncate">{course.course_name_en}</span>
