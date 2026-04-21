@@ -1,7 +1,8 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import AdminTooltip from "@/components/ui/AdminTooltip"
 import { useRouter } from "next/navigation"
 import { ArrowRight } from "lucide-react"
 
@@ -35,6 +36,7 @@ export default function HomePage() {
 
         </CardContent>
       </Card>
+      <AdminTooltip />
     </div>
   )
 }

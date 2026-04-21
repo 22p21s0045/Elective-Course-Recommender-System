@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { storage } from "@/lib/storage"
+import AdminTooltip from "@/components/ui/AdminTooltip"
 
 const topicIcons: Record<string, any> = {
   "Business & Management": Briefcase,
@@ -212,6 +213,7 @@ export default function TopicSelection() {
 
         </CardContent>
       </Card>
+      <AdminTooltip />
     </div>
   )
 }

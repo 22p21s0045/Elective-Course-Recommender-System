@@ -7,6 +7,7 @@ import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import FilePreviewCard from "@/components/ui/FilePreviewCard"
 import OcrLoadingCard from "@/components/ui/OcrLoadingCard"
+import AdminTooltip from "@/components/ui/AdminTooltip"
 
 export default function UploadTranscriptPage() {
     const router = useRouter()
@@ -155,6 +156,7 @@ export default function UploadTranscriptPage() {
 
                 </CardContent>
             </Card>
+            <AdminTooltip />
         </div>
     )
 }
