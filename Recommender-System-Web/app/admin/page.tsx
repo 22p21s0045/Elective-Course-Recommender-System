@@ -90,7 +90,7 @@ export default function AdminPage() {
                         <h1 className="text-3xl font-bold text-black/90">Elective Courses</h1>
                         <p className="text-base text-[#a39e98] mt-1">Manage elective courses available for student recommendations.</p>
                     </div>
-                    <button onClick={() => router.push("/admin/create")}
+                    <button onClick={() => router.push("/admin/add")}
                         className="flex items-center gap-2 bg-[#0075de] hover:bg-[#005bab] text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors">
                         <Plus size={15} />
                         Add Elective Course

@@ -1,29 +1,35 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, BookOpen, Sparkles, Monitor, Check } from "lucide-react"
+import { ArrowLeft, BookOpen, Sparkles, Monitor, Check, X, ChevronUp, ChevronDown } from "lucide-react"
+import {
+    Briefcase, Globe, Code, Users, Brain,
+    Shield, Database, BarChart, Network, Cloud, Palette, Server,
+} from "lucide-react"
 
 const TOPICS = [
-    { label: "Business & Management", icon: "💼" },
-    { label: "Web Development", icon: "🌐" },
-    { label: "Professional Practice & Soft Skills", icon: "🤝" },
-    { label: "Data Science & AI", icon: "🧠" },
-    { label: "Software Engineering", icon: "<>" },
-    { label: "Cybersecurity", icon: "○" },
-    { label: "Databases & Data Engineering", icon: "🗄" },
-    { label: "Mathematics & Statistics", icon: "∑" },
-    { label: "Networking", icon: "👥" },
-    { label: "DevOps & Architecture", icon: "🏗" },
-    { label: "UX/UI Design", icon: "✦" },
-    { label: "IT Fundamentals", icon: "🖥" },
+    { label: "Business & Management", icon: <Briefcase size={12} /> },
+    { label: "Web Development", icon: <Globe size={12} /> },
+    { label: "Professional Practice & Soft Skills", icon: <Users size={12} /> },
+    { label: "Data Science & AI", icon: <Brain size={12} /> },
+    { label: "Software Engineering", icon: <Code size={12} /> },
+    { label: "Cybersecurity", icon: <Shield size={12} /> },
+    { label: "Databases & Data Engineering", icon: <Database size={12} /> },
+    { label: "Mathematics & Statistics", icon: <BarChart size={12} /> },
+    { label: "Networking", icon: <Network size={12} /> },
+    { label: "DevOps & Architecture", icon: <Cloud size={12} /> },
+    { label: "UX/UI Design", icon: <Palette size={12} /> },
+    { label: "IT Fundamentals", icon: <Server size={12} /> },
 ]
 
 const CURRENT_YEAR = 2569
-const YEARS = Array.from({ length: 6 }, (_, i) => CURRENT_YEAR - i)
+const YEARS = Array.from({ length: 10 }, (_, i) => CURRENT_YEAR - i).reverse()
 
 export default function AdminCreatePage() {
     const router = useRouter()
+    const [yearOpen, setYearOpen] = useState(false)
+    const yearRef = useRef<HTMLDivElement>(null)
 
     const [form, setForm] = useState({
         course_id: "",
@@ -41,6 +47,16 @@ export default function AdminCreatePage() {
 
     const [saving, setSaving] = useState(false)
     const [errors, setErrors] = useState<Record<string, string>>({})
+
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (yearRef.current && !yearRef.current.contains(e.target as Node)) {
+                setYearOpen(false)
+            }
+        }
+        document.addEventListener("mousedown", handler)
+        return () => document.removeEventListener("mousedown", handler)
+    }, [])
 
     const set = (key: string, value: any) => {
         setForm((prev) => ({ ...prev, [key]: value }))
@@ -70,13 +86,27 @@ export default function AdminCreatePage() {
         if (!validate()) return
         try {
             setSaving(true)
+
+            // Payload matches backend schema exactly
+            const payload = {
+                course_id: form.course_id,
+                course_name_th: form.course_name_th,
+                course_name_en: form.course_name_en,
+                is_elective: true,
+                topics: form.topics,
+                credits: form.credits,
+                description_th: form.description_th,
+                description_en: form.description_en,
+                academic_year: form.academic_year,
+                semester: form.semester,
+                lecturer_name: form.lecturer_name,
+                capacity: form.capacity,
+            }
+
             const res = await fetch("http://127.0.0.1:8000/courses", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ...form,
-                    is_elective: true,
-                }),
+                body: JSON.stringify(payload),
             })
             if (!res.ok) throw new Error("Failed to save")
             router.push("/admin")
@@ -89,8 +119,7 @@ export default function AdminCreatePage() {
     }
 
     const inputClass = (key?: string) =>
-        `w-full border rounded-lg px-3 py-2.5 text-sm text-black/80 placeholder:text-[#c0bbb6] outline-none focus:border-[#0075de] transition-colors ${
-            key && errors[key] ? "border-red-300 bg-red-50" : "border-black/10 bg-white"
+        `w-full border rounded-md px-3 py-2.5 text-sm text-black/80 placeholder:text-[#c0bbb6] outline-none focus:border-[#0075de] transition-colors ${key && errors[key] ? "border-red-300 bg-red-50" : "border-black/10 bg-white"
         }`
 
     return (
@@ -115,7 +144,6 @@ export default function AdminCreatePage() {
 
                     {/* ── Course Details ── */}
                     <Section icon={<BookOpen size={16} className="text-[#0075de]" />} title="Course Details" subtitle="Basic identification and classification of the elective.">
-
                         <div className="grid grid-cols-2 gap-3">
                             <div>
                                 <Label text="Course ID" required />
@@ -124,7 +152,7 @@ export default function AdminCreatePage() {
                             </div>
                             <div>
                                 <Label text="Credits" />
-                                <input className={inputClass()} placeholder="e.g.3(3-0-6)" value={form.credits} onChange={(e) => set("credits", e.target.value)} />
+                                <input className={inputClass()} placeholder="e.g. 3(3-0-6)" value={form.credits} onChange={(e) => set("credits", e.target.value)} />
                             </div>
                         </div>
 
@@ -139,7 +167,6 @@ export default function AdminCreatePage() {
                             <input className={inputClass()} placeholder="e.g. การเรียนรู้ของเครื่อง" value={form.course_name_th} onChange={(e) => set("course_name_th", e.target.value)} />
                         </div>
 
-                        {/* Topics */}
                         <div>
                             <Label text="Topics" />
                             <p className="text-xs text-[#a39e98] mb-2">Select all that apply — helps match this course to student interests.</p>
@@ -151,15 +178,14 @@ export default function AdminCreatePage() {
                                             key={label}
                                             type="button"
                                             onClick={() => toggleTopic(label)}
-                                            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                                                active
+                                            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${active
                                                     ? "bg-[#0075de] text-white border-[#0075de]"
-                                                    : "bg-white text-[#615d59] border-black/10 hover:border-[#0075de] hover:text-[#0075de]"
-                                            }`}
+                                                    : "bg-white text-[#615d59] border-black/10 hover:border-[#0075de] hover:bg-[#eaf4ff] hover:text-[#0075de]"
+                                                }`}
                                         >
                                             <span>{icon}</span>
                                             {label}
-                                            {active && <Check size={11} strokeWidth={2.5} />}
+                                            {active && <X size={11} strokeWidth={2.5} />}
                                         </button>
                                     )
                                 })}
@@ -169,25 +195,13 @@ export default function AdminCreatePage() {
 
                     {/* ── Description ── */}
                     <Section icon={<Sparkles size={16} className="text-[#0075de]" />} title="Description" subtitle="Provide context to help students understand the course scope.">
-
                         <div>
                             <Label text="Description (English)" />
-                            <textarea
-                                className={`${inputClass()} resize-none h-24`}
-                                placeholder="Describe the course content, objectives, and learning outcomes in English..."
-                                value={form.description_en}
-                                onChange={(e) => set("description_en", e.target.value)}
-                            />
+                            <textarea className={`${inputClass()} resize-none h-24`} placeholder="Describe the course content, objectives, and learning outcomes in English..." value={form.description_en} onChange={(e) => set("description_en", e.target.value)} />
                         </div>
-
                         <div>
                             <Label text="Description (Thai)" />
-                            <textarea
-                                className={`${inputClass()} resize-none h-24`}
-                                placeholder="อธิบายเนื้อหา วัตถุประสงค์ และผลลัพธ์การเรียนรู้ภาษาไทย..."
-                                value={form.description_th}
-                                onChange={(e) => set("description_th", e.target.value)}
-                            />
+                            <textarea className={`${inputClass()} resize-none h-24`} placeholder="อธิบายเนื้อหา วัตถุประสงค์ และผลลัพธ์การเรียนรู้ภาษาไทย..." value={form.description_th} onChange={(e) => set("description_th", e.target.value)} />
                         </div>
                     </Section>
 
@@ -195,16 +209,45 @@ export default function AdminCreatePage() {
                     <Section icon={<Monitor size={16} className="text-[#0075de]" />} title="Offering Details" subtitle="Specify when and how this course will be offered.">
 
                         <div className="grid grid-cols-2 gap-3">
-                            {/* Academic Year */}
+                            {/* Academic Year — custom dropdown with scroll */}
                             <div>
                                 <Label text="Academic Year" required />
-                                <select
-                                    className={inputClass("academic_year")}
-                                    value={form.academic_year}
-                                    onChange={(e) => set("academic_year", Number(e.target.value))}
-                                >
-                                    {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-                                </select>
+                                <div className="relative" ref={yearRef}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setYearOpen((o) => !o)}
+                                        className={`w-full flex items-center justify-between border rounded-md px-3 py-2.5 text-sm transition-colors outline-none ${yearOpen ? "border-[#0075de]" : "border-black/10"
+                                            } bg-white text-black/80`}
+                                    >
+                                        <span>{form.academic_year}</span>
+                                        {yearOpen
+                                            ? <ChevronUp size={14} className="text-[#a39e98]" />
+                                            : <ChevronDown size={14} className="text-[#a39e98]" />
+                                        }
+                                    </button>
+
+                                    {yearOpen && (
+                                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-black/10 rounded-xl shadow-lg z-20 overflow-hidden">
+                                            {/* Scrollable list — max 5 rows visible */}
+                                            <div className="overflow-y-auto max-h-46.25">
+                                                {YEARS.map((y) => (
+                                                    <button
+                                                        key={y}
+                                                        type="button"
+                                                        onClick={() => { set("academic_year", y); setYearOpen(false) }}
+                                                        className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-[#f5f5f5] ${form.academic_year === y
+                                                                ? "text-[#0075de] font-semibold bg-[#eaf4ff]"
+                                                                : "text-black/70"
+                                                            }`}
+                                                    >
+                                                        <span>{y}</span>
+                                                        {form.academic_year === y && <Check size={14} className="text-[#0075de]" />}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Capacity */}
@@ -214,13 +257,13 @@ export default function AdminCreatePage() {
                                     <button
                                         type="button"
                                         onClick={() => set("capacity", Math.max(1, form.capacity - 1))}
-                                        className="w-8 h-9 border border-black/10 rounded-lg text-[#615d59] hover:bg-[#f0f0f0] transition-colors text-lg leading-none"
+                                        className="w-8 h-9 border border-black/10 rounded-lg text-[#615d59] hover:bg-[#eaf4ff] transition-colors text-lg leading-none shrink-0"
                                     >
                                         −
                                     </button>
                                     <input
                                         type="number"
-                                        className="border border-black/10 rounded-lg px-3 py-2 text-sm text-center w-16 outline-none focus:border-[#0075de]"
+                                        className="border border-black/10 rounded-lg px-3 py-2 text-sm text-center w-16 outline-none focus:border-[#0075de] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         value={form.capacity}
                                         min={1}
                                         onChange={(e) => set("capacity", Number(e.target.value))}
@@ -228,7 +271,7 @@ export default function AdminCreatePage() {
                                     <button
                                         type="button"
                                         onClick={() => set("capacity", form.capacity + 1)}
-                                        className="w-8 h-9 border border-black/10 rounded-lg text-[#615d59] hover:bg-[#f0f0f0] transition-colors text-lg leading-none"
+                                        className="w-8 h-9 border border-black/10 rounded-lg text-[#615d59] hover:bg-[#eaf4ff] transition-colors text-lg leading-none shrink-0"
                                     >
                                         +
                                     </button>
@@ -247,11 +290,10 @@ export default function AdminCreatePage() {
                                             key={value}
                                             type="button"
                                             onClick={() => set("semester", value)}
-                                            className={`flex-1 text-xs py-2 rounded-lg border font-medium transition-colors ${
-                                                form.semester === value
+                                            className={`flex-1 text-xs py-2 rounded-md border font-medium transition-colors ${form.semester === value
                                                     ? "bg-[#0075de] text-white border-[#0075de]"
-                                                    : "bg-white text-[#615d59] border-black/10 hover:border-[#0075de]"
-                                            }`}
+                                                    : "bg-white text-[#615d59] border-black/10 hover:border-[#0075de] hover:bg-[#eaf4ff] hover:text-[#0075de]"
+                                                }`}
                                         >
                                             {label}
                                         </button>
@@ -262,33 +304,21 @@ export default function AdminCreatePage() {
                             {/* Lecturer */}
                             <div>
                                 <Label text="Lecturer Name" />
-                                <input
-                                    className={inputClass()}
-                                    placeholder="e.g. Assoc. Prof. Somchai Jaidee"
-                                    value={form.lecturer_name}
-                                    onChange={(e) => set("lecturer_name", e.target.value)}
-                                />
+                                <input className={inputClass()} placeholder="e.g. Assoc. Prof. Somchai Jaidee" value={form.lecturer_name} onChange={(e) => set("lecturer_name", e.target.value)} />
                             </div>
                         </div>
                     </Section>
 
-                    {/* Footer actions */}
+                    {/* Footer */}
                     <div className="flex items-center justify-between pt-1 pb-6">
                         <p className="text-xs text-[#a39e98]">
                             {Object.keys(errors).length > 0 ? "All required fields must be filled." : ""}
                         </p>
                         <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => router.push("/admin")}
-                                className="text-sm px-4 py-2 rounded-lg border border-black/10 bg-white text-[#615d59] hover:bg-[#f0f0f0] transition-colors"
-                            >
+                            <button onClick={() => router.push("/admin")} className="text-sm px-4 py-2 rounded-lg border border-black/10 bg-white text-[#615d59] hover:bg-[#f0f0f0] transition-colors">
                                 Cancel
                             </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={saving}
-                                className="flex items-center gap-1.5 text-sm px-4 py-2 rounded-lg bg-[#0075de] hover:bg-[#005bab] text-white font-semibold transition-colors disabled:opacity-50"
-                            >
+                            <button onClick={handleSave} disabled={saving} className="flex items-center gap-1.5 text-sm px-4 py-2 rounded-lg bg-[#0075de] hover:bg-[#005bab] text-white font-semibold transition-colors disabled:opacity-50">
                                 <Check size={14} />
                                 {saving ? "Saving..." : "Save Course"}
                             </button>
