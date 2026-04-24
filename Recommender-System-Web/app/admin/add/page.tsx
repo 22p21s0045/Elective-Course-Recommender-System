@@ -103,12 +103,13 @@ export default function AdminCreatePage() {
                 capacity: form.capacity,
             }
 
-            const res = await fetch("http://127.0.0.1:8000/courses", {
+            const res = await fetch("http://127.0.0.1:8000/elective-courses/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             })
             if (!res.ok) throw new Error("Failed to save")
+            console.log(payload)
             router.push("/admin")
         } catch (err) {
             console.error(err)
