@@ -8,21 +8,22 @@ import {
     Shield, Database, BarChart, Network, Cloud, Palette, Server,
 } from "lucide-react"
 
-const TOPICS = [
-    { label: "Business & Management", icon: <Briefcase size={12} /> },
-    { label: "Web Development", icon: <Globe size={12} /> },
-    { label: "Professional Practice & Soft Skills", icon: <Users size={12} /> },
-    { label: "Data Science & AI", icon: <Brain size={12} /> },
-    { label: "Software Engineering", icon: <Code size={12} /> },
-    { label: "Cybersecurity", icon: <Shield size={12} /> },
-    { label: "Databases & Data Engineering", icon: <Database size={12} /> },
-    { label: "Mathematics & Statistics", icon: <BarChart size={12} /> },
-    { label: "Networking", icon: <Network size={12} /> },
-    { label: "DevOps & Architecture", icon: <Cloud size={12} /> },
-    { label: "UX/UI Design", icon: <Palette size={12} /> },
-    { label: "IT Fundamentals", icon: <Server size={12} /> },
-]
+const TOPIC_ICONS: Record<string, React.ReactNode> = {
+    "Business & Management": <Briefcase size={12} />,
+    "Web Development": <Globe size={12} />,
+    "Professional Practice & Soft Skills": <Users size={12} />,
+    "Data Science & AI": <Brain size={12} />,
+    "Software Engineering": <Code size={12} />,
+    "Cybersecurity": <Shield size={12} />,
+    "Databases & Data Engineering": <Database size={12} />,
+    "Mathematics & Statistics": <BarChart size={12} />,
+    "Networking": <Network size={12} />,
+    "DevOps & Architecture": <Cloud size={12} />,
+    "UX/UI Design": <Palette size={12} />,
+    "IT Fundamentals": <Server size={12} />,
+}
 
+const MAX_TOPICS = 3
 const CURRENT_YEAR = 2569
 const YEARS = Array.from({ length: 10 }, (_, i) => CURRENT_YEAR - i).reverse()
 
@@ -30,6 +31,11 @@ export default function AdminCreatePage() {
     const router = useRouter()
     const [yearOpen, setYearOpen] = useState(false)
     const yearRef = useRef<HTMLDivElement>(null)
+
+    // Topics fetch state
+    const [availableTopics, setAvailableTopics] = useState<string[]>([])
+    const [topicsLoading, setTopicsLoading] = useState(true)
+    const [topicsError, setTopicsError] = useState<string | null>(null)
 
     const [form, setForm] = useState({
         course_id: "",
@@ -48,6 +54,31 @@ export default function AdminCreatePage() {
     const [saving, setSaving] = useState(false)
     const [errors, setErrors] = useState<Record<string, string>>({})
 
+    // Fetch topics from backend
+    useEffect(() => {
+        const fetchTopics = async () => {
+            try {
+                setTopicsLoading(true)
+                setTopicsError(null)
+
+                const res = await fetch("http://127.0.0.1:8000/elective-courses/topics", {
+                    method: "POST",
+                })
+                if (!res.ok) throw new Error(`Failed to fetch topics (${res.status})`)
+
+                const data: { topics: string[] } = await res.json()
+                setAvailableTopics(data.topics)
+            } catch (err: any) {
+                setTopicsError(err.message ?? "Something went wrong")
+            } finally {
+                setTopicsLoading(false)
+            }
+        }
+
+        fetchTopics()
+    }, [])
+
+    // Close year dropdown on outside click
     useEffect(() => {
         const handler = (e: MouseEvent) => {
             if (yearRef.current && !yearRef.current.contains(e.target as Node)) {
@@ -64,12 +95,14 @@ export default function AdminCreatePage() {
     }
 
     const toggleTopic = (label: string) => {
-        setForm((prev) => ({
-            ...prev,
-            topics: prev.topics.includes(label)
-                ? prev.topics.filter((t) => t !== label)
-                : [...prev.topics, label],
-        }))
+        setForm((prev) => {
+            const selected = prev.topics
+            if (selected.includes(label)) {
+                return { ...prev, topics: selected.filter((t) => t !== label) }
+            }
+            if (selected.length >= MAX_TOPICS) return prev
+            return { ...prev, topics: [...selected, label] }
+        })
     }
 
     const validate = () => {
@@ -86,8 +119,6 @@ export default function AdminCreatePage() {
         if (!validate()) return
         try {
             setSaving(true)
-
-            // Payload matches backend schema exactly
             const payload = {
                 course_id: form.course_id,
                 course_name_th: form.course_name_th,
@@ -102,14 +133,12 @@ export default function AdminCreatePage() {
                 lecturer_name: form.lecturer_name,
                 capacity: form.capacity,
             }
-
             const res = await fetch("http://127.0.0.1:8000/elective-courses/create", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             })
             if (!res.ok) throw new Error("Failed to save")
-            console.log(payload)
             router.push("/admin")
         } catch (err) {
             console.error(err)
@@ -122,6 +151,8 @@ export default function AdminCreatePage() {
     const inputClass = (key?: string) =>
         `w-full border rounded-md px-3 py-2.5 text-sm text-black/80 placeholder:text-[#c0bbb6] outline-none focus:border-[#0075de] transition-colors ${key && errors[key] ? "border-red-300 bg-red-50" : "border-black/10 bg-white"
         }`
+
+    const atMax = form.topics.length >= MAX_TOPICS
 
     return (
         <div className="min-h-screen bg-[#f6f5f4] px-6 py-10">
@@ -168,29 +199,57 @@ export default function AdminCreatePage() {
                             <input className={inputClass()} placeholder="e.g. การเรียนรู้ของเครื่อง" value={form.course_name_th} onChange={(e) => set("course_name_th", e.target.value)} />
                         </div>
 
+                        {/* Topics */}
                         <div>
-                            <Label text="Topics" />
-                            <p className="text-xs text-[#a39e98] mb-2">Select all that apply — helps match this course to student interests.</p>
-                            <div className="flex flex-wrap gap-2">
-                                {TOPICS.map(({ label, icon }) => {
-                                    const active = form.topics.includes(label)
-                                    return (
-                                        <button
-                                            key={label}
-                                            type="button"
-                                            onClick={() => toggleTopic(label)}
-                                            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${active
-                                                    ? "bg-[#0075de] text-white border-[#0075de]"
-                                                    : "bg-white text-[#615d59] border-black/10 hover:border-[#0075de] hover:bg-[#eaf4ff] hover:text-[#0075de]"
-                                                }`}
-                                        >
-                                            <span>{icon}</span>
-                                            {label}
-                                            {active && <X size={11} strokeWidth={2.5} />}
-                                        </button>
-                                    )
-                                })}
+                            <div className="flex items-center justify-between mb-1.5">
+                                <Label text="Topics" />
+                                <span className={`text-xs font-medium ${atMax ? "text-[#0075de]" : "text-[#a39e98]"}`}>
+                                    {form.topics.length} / {MAX_TOPICS} selected
+                                </span>
                             </div>
+                            <p className="text-xs text-[#a39e98] mb-2">Select up to {MAX_TOPICS} — helps match this course to student interests.</p>
+
+                            {/* Loading */}
+                            {topicsLoading && (
+                                <div className="flex flex-wrap gap-2">
+                                    {Array.from({ length: 8 }).map((_, i) => (
+                                        <div key={i} className="h-7 w-28 rounded-full bg-[#f0f0f0] animate-pulse" style={{ animationDelay: `${i * 0.08}s` }} />
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Error */}
+                            {!topicsLoading && topicsError && (
+                                <p className="text-xs text-red-400">{topicsError}</p>
+                            )}
+
+                            {/* Topic pills */}
+                            {!topicsLoading && !topicsError && (
+                                <div className="flex flex-wrap gap-2">
+                                    {availableTopics.map((label) => {
+                                        const active = form.topics.includes(label)
+                                        const disabled = !active && atMax
+                                        return (
+                                            <button
+                                                key={label}
+                                                type="button"
+                                                onClick={() => toggleTopic(label)}
+                                                disabled={disabled}
+                                                className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${active
+                                                        ? "bg-[#0075de] text-white border-[#0075de]"
+                                                        : disabled
+                                                            ? "bg-[#f8f8f8] text-[#c0bbb6] border-black/5 cursor-not-allowed"
+                                                            : "bg-white text-[#615d59] border-black/10 hover:border-[#0075de] hover:bg-[#eaf4ff] hover:text-[#0075de]"
+                                                    }`}
+                                            >
+                                                <span>{TOPIC_ICONS[label] ?? <Server size={12} />}</span>
+                                                {label}
+                                                {active && <X size={11} strokeWidth={2.5} />}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            )}
                         </div>
                     </Section>
 
@@ -208,9 +267,8 @@ export default function AdminCreatePage() {
 
                     {/* ── Offering Details ── */}
                     <Section icon={<Monitor size={16} className="text-[#0075de]" />} title="Offering Details" subtitle="Specify when and how this course will be offered.">
-
                         <div className="grid grid-cols-2 gap-3">
-                            {/* Academic Year — custom dropdown with scroll */}
+                            {/* Academic Year */}
                             <div>
                                 <Label text="Academic Year" required />
                                 <div className="relative" ref={yearRef}>
@@ -226,10 +284,8 @@ export default function AdminCreatePage() {
                                             : <ChevronDown size={14} className="text-[#a39e98]" />
                                         }
                                     </button>
-
                                     {yearOpen && (
                                         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-black/10 rounded-xl shadow-lg z-20 overflow-hidden">
-                                            {/* Scrollable list — max 5 rows visible */}
                                             <div className="overflow-y-auto max-h-46.25">
                                                 {YEARS.map((y) => (
                                                     <button
@@ -255,13 +311,7 @@ export default function AdminCreatePage() {
                             <div>
                                 <Label text="Capacity (Max Seats)" />
                                 <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => set("capacity", Math.max(1, form.capacity - 1))}
-                                        className="w-8 h-9 border border-black/10 rounded-lg text-[#615d59] hover:bg-[#eaf4ff] transition-colors text-lg leading-none shrink-0"
-                                    >
-                                        −
-                                    </button>
+                                    <button type="button" onClick={() => set("capacity", Math.max(1, form.capacity - 1))} className="w-8 h-9 border border-black/10 rounded-lg text-[#615d59] hover:bg-[#eaf4ff] transition-colors text-lg leading-none shrink-0">−</button>
                                     <input
                                         type="number"
                                         className="border border-black/10 rounded-lg px-3 py-2 text-sm text-center w-16 outline-none focus:border-[#0075de] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -269,13 +319,7 @@ export default function AdminCreatePage() {
                                         min={1}
                                         onChange={(e) => set("capacity", Number(e.target.value))}
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => set("capacity", form.capacity + 1)}
-                                        className="w-8 h-9 border border-black/10 rounded-lg text-[#615d59] hover:bg-[#eaf4ff] transition-colors text-lg leading-none shrink-0"
-                                    >
-                                        +
-                                    </button>
+                                    <button type="button" onClick={() => set("capacity", form.capacity + 1)} className="w-8 h-9 border border-black/10 rounded-lg text-[#615d59] hover:bg-[#eaf4ff] transition-colors text-lg leading-none shrink-0">+</button>
                                     <span className="text-xs text-[#a39e98]">students max</span>
                                 </div>
                             </div>
