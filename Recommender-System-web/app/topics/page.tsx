@@ -159,7 +159,7 @@ export default function TopicSelection() {
 
           {/* Grid — Topics */}
           {!loading && !error && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 overflow-y-auto max-h-115 pr-3">
               {topics.map((topic) => {
                 const isSelected = selected.includes(topic)
                 const Icon = getFallbackIcon(topic)
