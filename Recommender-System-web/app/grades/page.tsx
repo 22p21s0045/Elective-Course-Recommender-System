@@ -53,10 +53,13 @@ export default function GradesPage() {
       setLoading(true)
 
       const studentId = localStorage.getItem("student_id")
-      const raw_grades = Object.entries(selectedGrades).map(([code, grade]) => ({
-        course_code: code,
-        grade_letter: grade,
-      }))
+      const raw_grades = Object.entries(selectedGrades).map(([code, grade]) => {
+        const course = courses.find((c) => c.code === code)
+        return {
+          course_code: course ? `${code} ${course.name}` : code,
+          grade_letter: grade,
+        }
+      })
       const topics = JSON.parse(localStorage.getItem("topics") || "[]")
 
       const payload = {
@@ -177,7 +180,7 @@ export default function GradesPage() {
 
         </CardContent>
       </Card>
-      <AdminTooltip/>
+      <AdminTooltip />
     </div>
   )
 }
