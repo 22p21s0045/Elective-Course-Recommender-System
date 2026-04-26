@@ -8,3 +8,7 @@ venv/
 dist/
 build/
 *.egg-info/
+
+INT_Course-Original-Description_ONLY.csv
+gen_embeddings.py
+insert.py
