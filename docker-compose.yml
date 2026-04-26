@@ -28,7 +28,7 @@ services:
 
 
   frontend:
-    build: ./Recommender-System-Web
+    build: ./Recommender-System-web
     container_name: course_frontend
     restart: unless-stopped
     ports:
