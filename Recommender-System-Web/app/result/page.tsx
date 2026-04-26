@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { ArrowLeft, Users, Clock, BookOpen } from "lucide-react"
+import AdminTooltip from "@/components/ui/AdminTooltip"
 
 const getGradeLetter = (gpa: number): string => {
     if (gpa >= 4) return "A"
@@ -180,6 +181,7 @@ export default function ResultPage() {
 
                 </CardContent>
             </Card>
+            <AdminTooltip />
         </div>
     )
 }

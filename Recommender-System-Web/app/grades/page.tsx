@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowRight } from "lucide-react"
 import FindingElectivesLoading from "@/components/ui/FindingElectivesLoading"
+import AdminTooltip from "@/components/ui/AdminTooltip"
 
 type Course = {
   code: string
@@ -179,6 +180,7 @@ export default function GradesPage() {
 
         </CardContent>
       </Card>
+      <AdminTooltip/>
     </div>
   )
 }
