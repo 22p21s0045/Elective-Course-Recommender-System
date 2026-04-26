@@ -104,7 +104,7 @@ export default function ResultPage() {
 
                                     {/* 2. Course Info */}
                                     <div className="flex-1 space-y-3 px-3">
-                                        <h2 className="text-base">
+                                        <h2 className="text-base font-semibold">
                                             {course.course_name_en}
                                         </h2>
 
@@ -137,6 +137,9 @@ export default function ResultPage() {
                                             ))}
                                         </div>
 
+                                        <p className="text-sm text-[#615d59] leading-relaxed it">
+                                            {course.description_en}
+                                        </p>
                                         <p className="text-[15px] font-semibold text-[#615d59]">
                                             {course.lecturer_name}
                                         </p>
