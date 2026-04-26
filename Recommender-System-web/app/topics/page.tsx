@@ -18,6 +18,7 @@ import {
   Server,
   ArrowRight,
   Loader2,
+  Flame,
   AlertCircle,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -25,22 +26,69 @@ import { storage } from "@/lib/storage"
 import AdminTooltip from "@/components/ui/AdminTooltip"
 
 const topicIcons: Record<string, any> = {
-  "Business & Management": Briefcase,
-  "Web Development": Globe,
-  "Professional Practice & Soft Skills": Users,
-  "Data Science & AI": Brain,
-  "Software Engineering": Code,
-  "Cybersecurity": Shield,
-  "Databases & Data Engineering": Database,
-  "Mathematics & Statistics": BarChart,
-  "Networking": Network,
-  "DevOps & Architecture": Cloud,
-  "UX/UI Design": Palette,
-  "IT Fundamentals": Server,
-  // Fallback icons for dynamic topics
-  "Programming": Code,
+  "Logic": BarChart,
+  "SQL": Database,
+  "Agile": Users,
+  "Search Algorithms": Code,
   "Security": Shield,
-  "Default": Brain,
+  "Algorithms": Code,
+  "Machine Learning": Brain,
+  "C#": Code,
+  "Swift": Code,
+  "Biology": Server,
+  "Game Dev": Code,
+  "NLP": Brain,
+  "Networking": Network,
+  "System Programming": Code,
+  "HCI": Palette,
+  "Ethics": Users,
+  "DevOps": Cloud,
+  "Data Science": Brain,
+  "Startup": Briefcase,
+  "Hardware": Server,
+  "FinTech": Briefcase,
+  "Data Engineering": Database,
+  "Blockchain": Shield,
+  "Complexity": BarChart,
+  "Design": Palette,
+  "Fullstack": Globe,
+  "Human-Computer Interaction": Palette,
+  "Big Data": Database,
+  "Linguistics": Brain,
+  "Data Storytelling": BarChart,
+  "QA": Users,
+  "Embedded Systems": Server,
+  "Software Engineering": Code,
+  "ETL": Database,
+  "OS": Server,
+  "Database": Database,
+  "Cryptography": Shield,
+  "Math": BarChart,
+  "Deep Learning": Brain,
+  "Statistics": BarChart,
+  "Visualization": BarChart,
+  "Programming": Code,
+  "Neural Networks": Brain,
+  "NoSQL": Database,
+  "Testing": Users,
+  "Mathematics": BarChart,
+  "Infrastructure": Cloud,
+  "AI": Brain,
+  "Robotics": Brain,
+  "Data Analysis": BarChart,
+  "Multimedia": Palette,
+  "UX/UI": Palette,
+  "Cloud": Cloud,
+  "Mobile Dev": Globe,
+  "Recommendation Systems": Brain,
+  "IoT": Network,
+  "Business": Briefcase,
+  "Flutter": Globe,
+  "Law": Briefcase,
+  "Web Development": Globe,
+  "Unity": Flame,
+  // Fallback icons for dynamic topics
+  "Default": Flame,
 }
 
 const getFallbackIcon = (topic: string) => {
@@ -159,7 +207,7 @@ export default function TopicSelection() {
 
           {/* Grid — Topics */}
           {!loading && !error && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 overflow-y-auto max-h-115 pr-3">
               {topics.map((topic) => {
                 const isSelected = selected.includes(topic)
                 const Icon = getFallbackIcon(topic)
