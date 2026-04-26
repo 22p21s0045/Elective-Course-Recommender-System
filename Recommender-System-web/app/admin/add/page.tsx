@@ -24,7 +24,7 @@ const TOPIC_ICONS: Record<string, React.ReactNode> = {
 }
 
 const MAX_TOPICS = 3
-const CURRENT_YEAR = 2569
+const CURRENT_YEAR = 2026
 const YEARS = Array.from({ length: 10 }, (_, i) => CURRENT_YEAR - i).reverse()
 
 export default function AdminCreatePage() {
