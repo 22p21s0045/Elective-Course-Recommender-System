@@ -4,46 +4,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { ArrowLeft, Users, Clock, BookOpen } from "lucide-react"
+import AdminTooltip from "@/components/ui/AdminTooltip"
 
-// type Course = {
-//     rank: number
-//     title: string
-//     code: string
-//     credits: number
-//     tags: string[]
-//     grade: string
-//     gpa: number
-// }
-
-// const recommendations: Course[] = [
-//     {
-//         rank: 1,
-//         title: "Introduction to Machine Learning",
-//         code: "INT201",
-//         credits: 3,
-//         tags: ["AI", "Programming"],
-//         grade: "A",
-//         gpa: 3.85,
-//     },
-//     {
-//         rank: 2,
-//         title: "Advanced Database Systems",
-//         code: "INT305",
-//         credits: 3,
-//         tags: ["SQL", "NoSQL", "Performance"],
-//         grade: "B+",
-//         gpa: 3.62,
-//     },
-//     {
-//         rank: 3,
-//         title: "Cloud Computing Architecture",
-//         code: "INT410",
-//         credits: 3,
-//         tags: ["Cloud", "DevOps"],
-//         grade: "B+",
-//         gpa: 3.41,
-//     },
-// ]
 const getGradeLetter = (gpa: number): string => {
     if (gpa >= 4) return "A"
     if (gpa >= 3.5) return "B+"
@@ -84,11 +47,11 @@ export default function ResultPage() {
                     {/* Header */}
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-2xl font-semibold">
+                            <h1 className="text-3xl font-bold pb-2">
                                 Your Recommendations
                             </h1>
-                            <p className="text-sm text-[#615d59]">
-                                Ranked by predicted grade based on your academic profile and 175 student records.
+                            <p className="text-base text-[#615d59]">
+                                Ranked by predicted grade based on your academic profile
                             </p>
                         </div>
 
@@ -98,19 +61,28 @@ export default function ResultPage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-3 gap-3">
-                        <div className="border rounded-xl p-4 bg-white">
-                            <p className="text-xs text-[#615d59]">Records used</p>
-                            <p className="text-lg font-semibold">175</p>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="border rounded-xl p-4 bg-white space-y-2">
+                            <p className="text-xs text-[#615d59] flex items-center gap-2">
+                                <BookOpen size={16} className="text-[#0075de]" />
+                                Records used
+                            </p>
+
+                            <p className="text-lg font-semibold">
+                                {data?.target_student_records}
+                            </p>
                         </div>
 
-                        <div className="border rounded-xl p-4 bg-white">
+                        {/* <div className="border rounded-xl p-4 bg-white">
                             <p className="text-xs text-[#615d59]">Courses analysed</p>
                             <p className="text-lg font-semibold">48</p>
-                        </div>
+                        </div> */}
 
-                        <div className="border rounded-xl p-4 bg-white">
-                            <p className="text-xs text-[#615d59]">Training time</p>
+                        <div className="border rounded-xl p-4 bg-white space-y-2">
+                            <p className="text-xs text-[#615d59] flex items-center gap-2">
+                                <Clock size={16} className="text-[#0075de]" />
+                                Training time
+                            </p>
                             <p className="text-lg font-semibold">{data?.processing_time_seconds}s</p>
                         </div>
                     </div>
@@ -123,43 +95,61 @@ export default function ResultPage() {
                             return (
                                 <div
                                     key={course.course_id}
-                                    className="flex justify-between items-start border-t pt-4"
+                                    className="flex items-start justify-between border-t pt-4"
                                 >
-                                    {/* Left */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-[#0075de]">
-                                                {index + 1}.
-                                            </span>
-                                            <h2 className="font-medium">
-                                                {course.course_name_en}
-                                            </h2>
-                                        </div>
+                                    {/* 1. Index */}
+                                    <div className="w-6 text-[#0075de] font-medium">
+                                        {index + 1}.
+                                    </div>
 
-                                        <p className="text-sm text-[#615d59]">
-                                            {course.course_id} • {course.credits} credits
+                                    {/* 2. Course Info */}
+                                    <div className="flex-1 space-y-3 px-3">
+                                        <h2 className="text-base">
+                                            {course.course_name_en}
+                                        </h2>
+
+                                        <p className="text-sm text-[#615d59] flex items-center gap-2 flex-wrap">
+                                            <span className="font-medium text-[16px]">
+                                                {course.course_id}
+                                            </span>
+
+                                            <span className="opacity-40">•</span>
+
+                                            <span className="flex items-center gap-1">
+                                                <BookOpen size={13} />
+                                                {course.credits} credits
+                                            </span>
+
+                                            <span className="flex items-center gap-1">
+                                                <Users size={13} />
+                                                {course.capacity} seats
+                                            </span>
                                         </p>
 
-                                        <div className="flex gap-2">
-                                            {course.topics.map((tag: string) => (
+                                        <div className="flex gap-2 flex-wrap">
+                                            {course.topics?.map((tag: String) => (
                                                 <span
-                                                    key={tag}
+                                                    key={`${course.course_id}-${tag}-${1}`}
                                                     className="text-xs bg-black/5 px-2 py-1 rounded"
                                                 >
                                                     {tag}
                                                 </span>
                                             ))}
                                         </div>
+
+                                        <p className="text-[15px] font-semibold text-[#615d59]">
+                                            {course.lecturer_name}
+                                        </p>
                                     </div>
 
-                                    {/* Right */}
-                                    <div className="text-right">
+                                    {/* 3. Grade */}
+                                    <div className="w-16 text-right">
                                         <p
                                             className={`text-xl font-semibold ${gradeLetter === "A"
-                                                    ? "text-green-600"
-                                                    : gradeLetter === "B+" || gradeLetter === "B"
-                                                        ? "text-[#0075de]"
-                                                        : "text-orange-500"
+                                                ? "text-green-600"
+                                                : gradeLetter === "B+" || gradeLetter === "B"
+                                                    ? "text-[#0075de]"
+                                                    : "text-orange-500"
                                                 }`}
                                         >
                                             {gradeLetter}
@@ -173,22 +163,25 @@ export default function ResultPage() {
                         })}
                     </div>
 
+                    <hr />
+
                     {/* Footer */}
-                    <div className="flex justify-between items-center pt-4 border-t">
-                        <p className="text-xs text-[#a39e98]">
+                    <div className="flex justify-center items-center pt-4">
+                        {/* <p className="text-xs text-[#a39e98]">
                             Master data: 150 · Target subset: 25
-                        </p>
+                        </p> */}
 
                         <Button
                             variant="outline"
                             onClick={() => router.push("/")}
                         >
-                            ← Start over
+                            <ArrowLeft size={16} /> Start over
                         </Button>
                     </div>
 
                 </CardContent>
             </Card>
+            <AdminTooltip />
         </div>
     )
 }

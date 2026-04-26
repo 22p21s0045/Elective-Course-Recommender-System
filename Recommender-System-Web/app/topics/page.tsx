@@ -1,10 +1,11 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
   Briefcase,
+  Globe,
   Code,
   Users,
   Brain,
@@ -15,14 +16,17 @@ import {
   Cloud,
   Palette,
   Server,
+  ArrowRight,
+  Loader2,
+  AlertCircle,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { storage } from "@/lib/storage"
-import { useEffect } from "react"
+import AdminTooltip from "@/components/ui/AdminTooltip"
 
 const topicIcons: Record<string, any> = {
   "Business & Management": Briefcase,
-  "Web Development": Code,
+  "Web Development": Globe,
   "Professional Practice & Soft Skills": Users,
   "Data Science & AI": Brain,
   "Software Engineering": Code,
@@ -33,32 +37,50 @@ const topicIcons: Record<string, any> = {
   "DevOps & Architecture": Cloud,
   "UX/UI Design": Palette,
   "IT Fundamentals": Server,
+  // Fallback icons for dynamic topics
+  "Programming": Code,
+  "Security": Shield,
+  "Default": Brain,
 }
 
-const topics = [
-  "Business & Management",
-  "Web Development",
-  "Professional Practice & Soft Skills",
-  "Data Science & AI",
-  "Software Engineering",
-  "Cybersecurity",
-  "Databases & Data Engineering",
-  "Mathematics & Statistics",
-  "Networking",
-  "DevOps & Architecture",
-  "UX/UI Design",
-  "IT Fundamentals",
-]
+const getFallbackIcon = (topic: string) => {
+  return topicIcons[topic] ?? topicIcons["Default"]
+}
 
 export default function TopicSelection() {
   const [selected, setSelected] = useState<string[]>([])
+  const [topics, setTopics] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    const saved = storage.getTopics()
-    if (saved.length > 0) {
-      setSelected(saved)
+    const fetchTopics = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        const res = await fetch("http://127.0.0.1:8000/elective-courses/topics", {
+          method: "POST"
+        })
+        if (!res.ok) throw new Error(`Failed to fetch topics (${res.status})`)
+
+        const data: { topics: string[] } = await res.json()
+        setTopics(data.topics)
+
+        // Restore saved selections (only keep ones that still exist in new list)
+        const saved = storage.getTopics()
+        if (saved.length > 0) {
+          setSelected(saved.filter((t) => data.topics.includes(t)))
+        }
+      } catch (err: any) {
+        setError(err.message ?? "Something went wrong")
+      } finally {
+        setLoading(false)
+      }
     }
+
+    fetchTopics()
   }, [])
 
   const toggleTopic = (topic: string) => {
@@ -76,83 +98,122 @@ export default function TopicSelection() {
 
     setSelected(updated)
     storage.setTopics(updated)
-    console.log(updated)
-
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f5f4] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#f6f5f4] flex items-center justify-center px-4 font-inter">
       <Card className="w-full max-w-2xl rounded-2xl border border-black/10 shadow-sm">
         <CardContent className="p-8 space-y-6">
 
           {/* Title */}
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-semibold text-black/90">
+            <h1 className="text-3xl font-bold text-black/90">
               What topics are you interested in?
             </h1>
-            <p className="text-sm text-[#615d59]">
+            <p className="text-base text-[#615d59]">
               Choose up to <span className="text-[#0075de] font-medium">3</span> to help us tailor your learning path
             </p>
 
-            <p className="text-xs text-[#a39e98]">
-              {selected.length}/3 selected
-            </p>
-          </div>
-
-          {/* Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {topics.map((topic) => {
-              const isSelected = selected.includes(topic)
-
-              return (
-                <button
-                  key={topic}
-                  onClick={() => toggleTopic(topic)}
-                  className={cn(
-                    "p-4 rounded-xl border text-sm transition-all flex flex-col items-center justify-between",
-                    "border-black/10 bg-white hover:shadow-sm",
-                    isSelected && "border-[#0075de] bg-[#f2f9ff]"
-                  )}
-                >
-                  {/* Icon below text */}
-                  <div className="mt-2">
-                    {(() => {
-                      const Icon = topicIcons[topic]
-                      return Icon ? (
-                        <Icon
-                          size={20}
-                          className={cn(
-                            "text-black/50",
-                            isSelected && "text-[#0075de]"
-                          )}
-                        />
-                      ) : null
-                    })()}
+            <div className="flex items-center justify-center gap-2">
+              {[1, 2, 3].map((i) => {
+                const isActive = i <= selected.length
+                return (
+                  <div
+                    key={i}
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold border ${isActive
+                      ? "bg-[#0075de] border-[#0075de] text-white"
+                      : "bg-white border-black/20 text-transparent"
+                      }`}
+                  >
+                    ✓
                   </div>
-
-                  <span className="text-center">{topic}</span>
-                </button>
-              )
-            })}
+                )
+              })}
+              <span className="text-sm text-[#a39e98] ml-2">
+                {selected.length}/3 selected
+              </span>
+            </div>
           </div>
+
+          {/* Grid — Loading */}
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-12 gap-3 text-[#a39e98]">
+              <Loader2 size={28} className="animate-spin text-[#0075de]" />
+              <p className="text-sm">Loading topics…</p>
+            </div>
+          )}
+
+          {/* Grid — Error */}
+          {!loading && error && (
+            <div className="flex flex-col items-center justify-center py-10 gap-3 text-[#a39e98]">
+              <AlertCircle size={28} className="text-red-400" />
+              <p className="text-sm text-red-400">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="text-xs text-[#0075de] underline underline-offset-2"
+              >
+                Try again
+              </button>
+            </div>
+          )}
+
+          {/* Grid — Topics */}
+          {!loading && !error && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {topics.map((topic) => {
+                const isSelected = selected.includes(topic)
+                const Icon = getFallbackIcon(topic)
+
+                return (
+                  <button
+                    key={topic}
+                    onClick={() => toggleTopic(topic)}
+                    className={cn(
+                      "p-4 rounded-xl border text-sm transition-all flex flex-col items-center justify-between",
+                      "border-black/10 bg-white",
+                      !isSelected && "hover:shadow-sm hover:border-[#0075de] hover:bg-[#f2f9ff]",
+                      isSelected && "border-[#0075de] bg-[#0075de]"
+                    )}
+                  >
+                    <div className={cn("p-3 bg-[#f2f9ff] rounded-xl", isSelected && "bg-[#4896da]")}>
+                      <Icon
+                        size={20}
+                        className={cn("text-[#0075de]", isSelected && "text-white")}
+                      />
+                    </div>
+                    <span className={cn("mt-2 text-center", isSelected && "text-white")}>
+                      {topic}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          <hr />
 
           {/* Footer */}
-          <div className="flex justify-between items-center pt-4">
-            <p className="text-xs text-[#a39e98]">
-              Select at least 1 topic to continue
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-[#a39e98]">
+              {selected.length === 0
+                ? "Select at least 1 topic to continue"
+                : 3 - selected.length > 0
+                  ? `${3 - selected.length} more topic${3 - selected.length > 1 ? "s" : ""} available`
+                  : "Maximum topics selected"}
             </p>
 
             <Button
-              disabled={selected.length === 0}
+              disabled={selected.length === 0 || loading}
               onClick={() => router.push("/upload")}
               className="bg-[#0075de] hover:bg-[#005bab]"
             >
-              Continue →
+              Continue <ArrowRight size={16} />
             </Button>
           </div>
 
         </CardContent>
       </Card>
+      <AdminTooltip />
     </div>
   )
 }

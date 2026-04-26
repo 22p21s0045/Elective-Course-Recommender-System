@@ -1,13 +1,15 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import AdminTooltip from "@/components/ui/AdminTooltip"
 import { useRouter } from "next/navigation"
+import { ArrowRight } from "lucide-react"
 
 export default function HomePage() {
   const router = useRouter()
 
-  const name = "Natsaran" // 👉 replace later with dynamic value
+  const name = "Papangkorn"
 
   return (
     <div className="min-h-screen bg-[#f6f5f4] flex items-center justify-center px-4">
@@ -17,7 +19,7 @@ export default function HomePage() {
           {/* Greeting */}
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold text-black/90">
-              Hi, {name} 👋
+              Hi, {name} 😎
             </h1>
             <p className="text-sm text-[#615d59]">
               Let’s personalize your learning experience
@@ -29,11 +31,12 @@ export default function HomePage() {
             onClick={() => router.push("/topics")}
             className="w-full bg-[#0075de] hover:bg-[#005bab]"
           >
-            Continue →
+            Continue <ArrowRight size={16} />
           </Button>
 
         </CardContent>
       </Card>
+      <AdminTooltip />
     </div>
   )
 }
