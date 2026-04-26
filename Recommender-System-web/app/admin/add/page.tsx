@@ -9,18 +9,67 @@ import {
 } from "lucide-react"
 
 const TOPIC_ICONS: Record<string, React.ReactNode> = {
-    "Business & Management": <Briefcase size={12} />,
-    "Web Development": <Globe size={12} />,
-    "Professional Practice & Soft Skills": <Users size={12} />,
-    "Data Science & AI": <Brain size={12} />,
-    "Software Engineering": <Code size={12} />,
-    "Cybersecurity": <Shield size={12} />,
-    "Databases & Data Engineering": <Database size={12} />,
-    "Mathematics & Statistics": <BarChart size={12} />,
+    "Logic": <BarChart size={12} />,
+    "SQL": <Database size={12} />,
+    "Agile": <Users size={12} />,
+    "Search Algorithms": <Code size={12} />,
+    "Security": <Shield size={12} />,
+    "Algorithms": <Code size={12} />,
+    "Machine Learning": <Brain size={12} />,
+    "C#": <Code size={12} />,
+    "Swift": <Code size={12} />,
+    "Biology": <Server size={12} />,
+    "Game Dev": <Code size={12} />,
+    "NLP": <Brain size={12} />,
     "Networking": <Network size={12} />,
-    "DevOps & Architecture": <Cloud size={12} />,
-    "UX/UI Design": <Palette size={12} />,
-    "IT Fundamentals": <Server size={12} />,
+    "System Programming": <Code size={12} />,
+    "HCI": <Palette size={12} />,
+    "Ethics": <Users size={12} />,
+    "DevOps": <Cloud size={12} />,
+    "Data Science": <Brain size={12} />,
+    "Startup": <Briefcase size={12} />,
+    "Hardware": <Server size={12} />,
+    "FinTech": <Briefcase size={12} />,
+    "Data Engineering": <Database size={12} />,
+    "Blockchain": <Shield size={12} />,
+    "Complexity": <BarChart size={12} />,
+    "Design": <Palette size={12} />,
+    "Fullstack": <Globe size={12} />,
+    "Human-Computer Interaction": <Palette size={12} />,
+    "Big Data": <Database size={12} />,
+    "Linguistics": <Brain size={12} />,
+    "Data Storytelling": <BarChart size={12} />,
+    "QA": <Users size={12} />,
+    "Embedded Systems": <Server size={12} />,
+    "Software Engineering": <Code size={12} />,
+    "ETL": <Database size={12} />,
+    "OS": <Server size={12} />,
+    "Database": <Database size={12} />,
+    "Cryptography": <Shield size={12} />,
+    "Math": <BarChart size={12} />,
+    "Deep Learning": <Brain size={12} />,
+    "Statistics": <BarChart size={12} />,
+    "Visualization": <BarChart size={12} />,
+    "Programming": <Code size={12} />,
+    "Neural Networks": <Brain size={12} />,
+    "NoSQL": <Database size={12} />,
+    "Testing": <Users size={12} />,
+    "Mathematics": <BarChart size={12} />,
+    "Infrastructure": <Cloud size={12} />,
+    "AI": <Brain size={12} />,
+    "Robotics": <Brain size={12} />,
+    "Data Analysis": <BarChart size={12} />,
+    "Multimedia": <Palette size={12} />,
+    "UX/UI": <Palette size={12} />,
+    "Cloud": <Cloud size={12} />,
+    "Mobile Dev": <Globe size={12} />,
+    "Recommendation Systems": <Brain size={12} />,
+    "IoT": <Network size={12} />,
+    "Business": <Briefcase size={12} />,
+    "Flutter": <Globe size={12} />,
+    "Law": <Briefcase size={12} />,
+    "Web Development": <Globe size={12} />,
+    "Unity": <Code size={12} />
 }
 
 const MAX_TOPICS = 3
@@ -236,10 +285,10 @@ export default function AdminCreatePage() {
                                                 onClick={() => toggleTopic(label)}
                                                 disabled={disabled}
                                                 className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${active
-                                                        ? "bg-[#0075de] text-white border-[#0075de]"
-                                                        : disabled
-                                                            ? "bg-[#f8f8f8] text-[#c0bbb6] border-black/5 cursor-not-allowed"
-                                                            : "bg-white text-[#615d59] border-black/10 hover:border-[#0075de] hover:bg-[#eaf4ff] hover:text-[#0075de]"
+                                                    ? "bg-[#0075de] text-white border-[#0075de]"
+                                                    : disabled
+                                                        ? "bg-[#f8f8f8] text-[#c0bbb6] border-black/5 cursor-not-allowed"
+                                                        : "bg-white text-[#615d59] border-black/10 hover:border-[#0075de] hover:bg-[#eaf4ff] hover:text-[#0075de]"
                                                     }`}
                                             >
                                                 <span>{TOPIC_ICONS[label] ?? <Server size={12} />}</span>
@@ -293,8 +342,8 @@ export default function AdminCreatePage() {
                                                         type="button"
                                                         onClick={() => { set("academic_year", y); setYearOpen(false) }}
                                                         className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-[#f5f5f5] ${form.academic_year === y
-                                                                ? "text-[#0075de] font-semibold bg-[#eaf4ff]"
-                                                                : "text-black/70"
+                                                            ? "text-[#0075de] font-semibold bg-[#eaf4ff]"
+                                                            : "text-black/70"
                                                             }`}
                                                     >
                                                         <span>{y}</span>
@@ -336,8 +385,8 @@ export default function AdminCreatePage() {
                                             type="button"
                                             onClick={() => set("semester", value)}
                                             className={`flex-1 text-xs py-2 rounded-md border font-medium transition-colors ${form.semester === value
-                                                    ? "bg-[#0075de] text-white border-[#0075de]"
-                                                    : "bg-white text-[#615d59] border-black/10 hover:border-[#0075de] hover:bg-[#eaf4ff] hover:text-[#0075de]"
+                                                ? "bg-[#0075de] text-white border-[#0075de]"
+                                                : "bg-white text-[#615d59] border-black/10 hover:border-[#0075de] hover:bg-[#eaf4ff] hover:text-[#0075de]"
                                                 }`}
                                         >
                                             {label}
