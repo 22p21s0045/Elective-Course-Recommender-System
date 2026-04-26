@@ -39,7 +39,6 @@ export default function FindingElectivesLoading() {
                 {/* Title & subtitle */}
                 <div className="text-center space-y-1.5">
                     <h2 className="text-xl font-bold text-black/90">Finding your best electives</h2>
-                    <p className="text-sm text-[#a39e98]">Analysing 48 courses across 175 student records</p>
                 </div>
 
                 {/* Skeleton cards */}
