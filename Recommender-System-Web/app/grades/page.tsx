@@ -64,7 +64,7 @@ export default function GradesPage() {
         raw_grades,
         topics,
         extra_text: "",
-        academic_year: 2568,
+        academic_year: 2026,
         semester: 1,
         svd_weight: 0.5,
         embedding_weight: 0.5,
