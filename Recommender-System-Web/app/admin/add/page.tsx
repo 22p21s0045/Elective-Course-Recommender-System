@@ -61,7 +61,7 @@ export default function AdminCreatePage() {
                 setTopicsLoading(true)
                 setTopicsError(null)
 
-                const res = await fetch("http://127.0.0.1:8000/elective-courses/topics", {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/elective-courses/topics`, {
                     method: "POST",
                 })
                 if (!res.ok) throw new Error(`Failed to fetch topics (${res.status})`)
@@ -133,7 +133,7 @@ export default function AdminCreatePage() {
                 lecturer_name: form.lecturer_name,
                 capacity: form.capacity,
             }
-            const res = await fetch("http://127.0.0.1:8000/elective-courses/create", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/elective-courses/create`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),

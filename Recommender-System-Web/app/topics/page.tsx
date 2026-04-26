@@ -60,7 +60,7 @@ export default function TopicSelection() {
         setLoading(true)
         setError(null)
 
-        const res = await fetch("http://127.0.0.1:8000/elective-courses/topics", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/elective-courses/topics`, {
           method: "POST"
         })
         if (!res.ok) throw new Error(`Failed to fetch topics (${res.status})`)

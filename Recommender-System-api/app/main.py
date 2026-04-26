@@ -7,6 +7,7 @@ app = FastAPI(title="Elective Course Recommendation API")
 origins = [
     "http://localhost:3000",  # Next.js dev
     "http://127.0.0.1:3000",
+    "http://rp25us2-vm2.sit.kmutt.ac.th:3000",
 ]
 
 app.add_middleware(
