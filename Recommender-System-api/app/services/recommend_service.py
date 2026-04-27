@@ -58,9 +58,15 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
                 sim = 1.0 - (anchor.distance / 2.0)
                 print(f"เจอฝาแฝดคือ: {anchor.course_id} (คล้าย {sim:.2f})")
                 if sim >= 0.85:
+                    # anchor_est = trained_model.predict(uid=student_id, iid=anchor.course_id).est
+                    # predicted_grades[cm.course_id] = anchor_est * sim
+                    # print(f"ใช้เกรดจาก SVD ({anchor_est:.2f} * {sim:.2f} = {predicted_grades[cm.course_id]:.2f})")
+
                     anchor_est = trained_model.predict(uid=student_id, iid=anchor.course_id).est
-                    predicted_grades[cm.course_id] = anchor_est * sim
-                    print(f"ใช้เกรดจาก SVD ({anchor_est:.2f} * {sim:.2f} = {predicted_grades[cm.course_id]:.2f})")
+                    predicted_grades[cm.course_id] = user_gpa + (anchor_est - user_gpa) * sim
+                    print(f"ใช้เกรด: anchor={anchor_est:.2f}, GPA={user_gpa:.2f} → {predicted_grades[cm.course_id]:.2f}")
+
+
                 else:
                     predicted_grades[cm.course_id] = user_gpa
                     print(f"คล้ายไม่ถึงเกณฑ์ โดนปัดเป็น GPA ({user_gpa:.2f})")
