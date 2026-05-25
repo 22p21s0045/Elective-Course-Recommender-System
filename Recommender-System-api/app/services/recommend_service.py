@@ -5,7 +5,7 @@ from sqlalchemy.sql.expression import asc
 from app import models, schemas
 from app.internal.recommender import train_svd_model
 from app.internal.data_processor import preprocess_target_student, get_master_data
-from app.internal.ml_service import embedding_model
+from app.internal.ml_service import embedding_model, generate_course_explanation
 from app.services import course_service
 
 
@@ -112,6 +112,14 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
         # --- Hybrid Score ---
         hybrid_score = (svd_norm_score * request.svd_weight) + (embed_norm_score * request.embedding_weight)
 
+        explanation = generate_course_explanation(
+            course_id=course.course_id,
+            course_name=course.course_name_en,
+            course_desc=desc_th,
+            student_topics=course.topics,
+            predicted_grade=round(est_grade, 2)
+        )
+
         final_recommendations.append({
             "course_id": course.course_id,
             "course_name_th": course.course_name_th,
@@ -124,7 +132,8 @@ def calculate_hybrid_recommendation(request: schemas.HybridRecommendReq, db: Ses
             "topics": course.topics,
             "predicted_grade": round(est_grade, 2),
             "similarity_percent": round(embed_norm_score * 100, 2),
-            "hybrid_score_percent": round(hybrid_score * 100, 2)
+            "hybrid_score_percent": round(hybrid_score * 100, 2),
+            "ai_explanation": explanation
         })
 
     final_recommendations.sort(key=lambda x: x["hybrid_score_percent"], reverse=True)

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { ArrowLeft, Users, Clock, BookOpen } from "lucide-react"
+import { ArrowLeft, Users, Clock, BookOpen, Sparkles } from "lucide-react"
 import AdminTooltip from "@/components/ui/AdminTooltip"
 
 const getGradeLetter = (gpa: number): string => {
@@ -143,6 +143,17 @@ export default function ResultPage() {
                                         <p className="text-[15px] font-semibold text-[#615d59]">
                                             {course.lecturer_name}
                                         </p>
+                                        {course.ai_explanation && (
+                                            <div className="mt-3 p-4 bg-[#f4f8ff] border border-[#d2e5ff] rounded-xl text-sm space-y-1.5 shadow-sm">
+                                                <p className="font-semibold flex items-center gap-1.5 text-xs text-[#0075de] uppercase tracking-wider">
+                                                    <Sparkles size={14} className="text-[#0075de]" />
+                                                    Why Recommended
+                                                </p>
+                                                <p className="leading-relaxed text-[#2d3748]">
+                                                    {course.ai_explanation}
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* 3. Grade */}
