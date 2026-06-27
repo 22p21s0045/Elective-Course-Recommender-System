@@ -56,7 +56,8 @@ def generate_course_explanation(course_id: str, course_name: str, course_desc: s
     try:
         response = client.models.generate_content(
             # model='gemini-3-flash-preview',
-            model='gemini-2.5-flash',
+            # model='gemini-2.5-flash',
+            model='gemini-3.5-flash',
             contents=[prompt],
             config=types.GenerateContentConfig(
                 temperature=0.7
