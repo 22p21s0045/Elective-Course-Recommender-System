@@ -4,7 +4,7 @@ from typing import List, Union
 
 from app import schemas
 from app.dependencies import get_db
-from app.internal.ml_service import generate_and_update_embedding
+from app.services.ml_service import generate_and_update_embedding
 from app.services.course_service import (
     create_or_update_course,
     format_course_response,

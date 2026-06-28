@@ -4,7 +4,7 @@ from sqlalchemy import asc
 
 from app import models, schemas
 from app.dependencies import get_db
-from app.internal.ml_service import embedding_model
+from app.services.ml_service import embedding_model
 
 router = APIRouter(prefix="/search", tags=["Embeddings Topics"])
 

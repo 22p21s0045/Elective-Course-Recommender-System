@@ -5,7 +5,7 @@ from sqlalchemy.sql.expression import asc
 from app import models, schemas
 from app.internal.recommender import train_svd_model
 from app.internal.data_processor import preprocess_target_student, get_master_data
-from app.internal.ml_service import embedding_model, generate_course_explanation
+from app.services.ml_service import embedding_model, generate_course_explanation
 from app.services import course_service
 
 
